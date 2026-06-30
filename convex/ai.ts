@@ -5,7 +5,7 @@ import OpenAI from "openai";
 import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import { SUGGESTION_MODEL } from "./lib/aiConfig";
-import { getUtcDayStart } from "./lib/rateLimit";
+import { getUtcDayStart } from "./lib/utcDayStart";
 import { suggestCommentArgsValidator } from "./lib/validators";
 
 const MAX_DRAFT_LENGTH = 2000;
@@ -41,7 +41,7 @@ export const suggestComment = action({
       throw new Error("Suggestion is unavailable. Please try again later.");
     }
 
-    const openai = new OpenAI({ apiKey });
+    const openai = new OpenAI({ apiKey, timeout: 15 * 1000, maxRetries: 1 });
     let suggestion: string;
 
     try {
@@ -65,8 +65,6 @@ export const suggestComment = action({
 
     await ctx.runMutation(internal.suggestions.saveSuggestion, {
       dayStart,
-      draft,
-      suggestion,
       model: SUGGESTION_MODEL,
     });
 

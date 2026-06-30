@@ -4,15 +4,10 @@ import type { MutationCtx, QueryCtx } from "../_generated/server";
 /** Max AI suggestions per user per UTC calendar day. */
 export const DAILY_SUGGESTION_LIMIT = 20;
 
-export function getUtcDayStart(timestamp: number): number {
-  const date = new Date(timestamp);
-  return Date.UTC(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-  );
-}
+/** How long suggestion usage rows are kept before the cleanup cron deletes them. */
+export const SUGGESTION_RETENTION_MS = 2 * 24 * 60 * 60 * 1000;
 
+export { getUtcDayStart } from "./utcDayStart";
 export async function countUserSuggestionsToday(
   ctx: QueryCtx | MutationCtx,
   userId: Id<"users">,

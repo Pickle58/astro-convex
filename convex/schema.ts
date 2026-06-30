@@ -19,8 +19,6 @@ export default defineSchema({
 
   commentSuggestions: defineTable({
     userId: v.id("users"),
-    draft: v.string(),
-    suggestion: v.string(),
     model: v.string(),
   }).index("by_user", ["userId"]),
 });

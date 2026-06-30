@@ -1,22 +1,14 @@
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Authenticated, Unauthenticated, useConvexAuth } from "convex/react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { api } from "../../convex/_generated/api";
-
-function getUtcDayStart(timestamp: number): number {
-  const date = new Date(timestamp);
-  return Date.UTC(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-  );
-}
+import { getUtcDayStart } from "../../convex/lib/utcDayStart";
 
 export function CommentForm() {
   const createComment = useMutation(api.comments.create);
   const suggestComment = useAction(api.ai.suggestComment);
   const { isAuthenticated } = useConvexAuth();
-  const dayStart = useMemo(() => getUtcDayStart(Date.now()), []);
+  const dayStart = getUtcDayStart(Date.now());
   const quota = useQuery(
     api.users.suggestionQuota,
     isAuthenticated ? { dayStart } : "skip",
@@ -25,6 +17,8 @@ export function CommentForm() {
   const [content, setContent] = useState("");
   const [error, setError] = useState<string>();
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [pendingSuggestion, setPendingSuggestion] = useState<string>();
+  const [revertDraft, setRevertDraft] = useState<string>();
 
   const suggestDisabled =
     !content.trim() ||
@@ -38,10 +32,12 @@ export function CommentForm() {
     }
 
     setError(undefined);
+    setPendingSuggestion(undefined);
+    setRevertDraft(undefined);
     setIsSuggesting(true);
     try {
       const suggestion = await suggestComment({ draft });
-      setContent(suggestion);
+      setPendingSuggestion(suggestion);
     } catch (error) {
       console.error(error);
       setError(
@@ -52,6 +48,24 @@ export function CommentForm() {
     } finally {
       setIsSuggesting(false);
     }
+  };
+
+  const handleUseSuggestion = () => {
+    if (!pendingSuggestion) {
+      return;
+    }
+    setRevertDraft(content);
+    setContent(pendingSuggestion);
+    setPendingSuggestion(undefined);
+  };
+
+  const handleDismissSuggestion = () => {
+    setPendingSuggestion(undefined);
+  };
+
+  const handleRevert = () => {
+    setContent(revertDraft);
+    setRevertDraft(undefined);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -74,6 +88,8 @@ export function CommentForm() {
       });
       setDisplayName("");
       setContent("");
+      setPendingSuggestion(undefined);
+      setRevertDraft(undefined);
     } catch (error) {
       console.error(error);
       setError(
@@ -106,6 +122,41 @@ export function CommentForm() {
             onChange={(e) => setContent(e.target.value)}
             className="min-h-[100px] w-full resize-y rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
+          {pendingSuggestion && (
+            <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 text-sm">
+              <p className="mb-2 font-medium text-gray-700">Suggested edit</p>
+              <p className="mb-3 whitespace-pre-wrap text-gray-800">
+                {pendingSuggestion}
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleUseSuggestion}
+                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+                >
+                  Use suggestion
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDismissSuggestion}
+                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+          {revertDraft && !pendingSuggestion && (
+            <div className="flex">
+              <button
+                type="button"
+                onClick={handleRevert}
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 focus:underline focus:outline-none"
+              >
+                Revert to original draft
+              </button>
+            </div>
+          )}
           {quota && (
             <p className="text-xs text-gray-500">
               {quota.remaining > 0
