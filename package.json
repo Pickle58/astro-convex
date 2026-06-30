@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "concurrently -n astro,convex -c blue,magenta \"pnpm dev:astro\" \"pnpm dev:convex\"",
     "dev:astro": "node scripts/check-node-version.mjs && cross-env NODE_OPTIONS=--max-http-header-size=65536 astro dev",
+    "dev:astro:clean": "node scripts/clean-vite-cache.mjs && pnpm dev:astro",
     "dev:convex": "convex dev",
     "build": "astro build",
     "preview": "wrangler dev",

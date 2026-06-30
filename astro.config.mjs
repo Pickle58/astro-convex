@@ -23,5 +23,15 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      // Avoid stale/missing deps_ssr chunk errors when deps re-optimize mid-request.
+      ignoreOutdatedRequests: true,
+      exclude: [
+        "@clerk/backend",
+        "convex",
+        "convex/react",
+        "convex/react-clerk",
+      ],
+    },
   },
 });
