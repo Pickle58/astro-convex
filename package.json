@@ -28,6 +28,7 @@
     "@types/react-dom": "^19.2.3",
     "astro": "^6.4.8",
     "convex": "^1.36.1",
+    "openai": "^6.45.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },

@@ -23,7 +23,6 @@ export async function countComments(ctx: QueryCtx): Promise<number> {
   while (true) {
     const { page, isDone, continueCursor } = await ctx.db
       .query("comments")
-      .withIndex("by_created")
       .order("desc")
       .paginate({ numItems: 100, cursor });
 

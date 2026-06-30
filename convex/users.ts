@@ -6,7 +6,15 @@ import {
   getCurrentUserOrNull,
 } from "./lib/auth";
 import { normalizeDisplayName, isUsableDisplayName } from "./lib/displayName";
-import { setNameArgsValidator, viewerValidator } from "./lib/validators";
+import {
+  countUserSuggestionsToday,
+  DAILY_SUGGESTION_LIMIT,
+} from "./lib/rateLimit";
+import {
+  setNameArgsValidator,
+  suggestionQuotaValidator,
+  viewerValidator,
+} from "./lib/validators";
 
 export const ensure = mutation({
   args: {},
@@ -45,5 +53,25 @@ export const viewer = query({
       return null;
     }
     return { name: normalizeDisplayName(user.name) };
+  },
+});
+
+export const suggestionQuota = query({
+  args: {
+    dayStart: v.number(),
+  },
+  returns: v.union(suggestionQuotaValidator, v.null()),
+  handler: async (ctx, args): Promise<Infer<typeof suggestionQuotaValidator> | null> => {
+    const user = await getCurrentUserOrNull(ctx);
+    if (!user) {
+      return null;
+    }
+
+    const used = await countUserSuggestionsToday(ctx, user._id, args.dayStart);
+    return {
+      used,
+      limit: DAILY_SUGGESTION_LIMIT,
+      remaining: Math.max(0, DAILY_SUGGESTION_LIMIT - used),
+    };
   },
 });

@@ -14,7 +14,13 @@ export default defineSchema({
     author: v.string(),
     content: v.string(),
   })
-    .index("by_user", ["userId", "_creationTime"])
-    .index("by_author", ["author", "_creationTime"])
-    .index("by_created", ["_creationTime"]),
+    .index("by_user", ["userId"])
+    .index("by_author", ["author"]),
+
+  commentSuggestions: defineTable({
+    userId: v.id("users"),
+    draft: v.string(),
+    suggestion: v.string(),
+    model: v.string(),
+  }).index("by_user", ["userId"]),
 });

@@ -52,7 +52,7 @@ export const count = query({
   },
 });
 
-/** Newest comments first — uses the by_created index. */
+/** Newest comments first. */
 export const list = query({
   args: {
     paginationOpts: paginationOptsValidator,
@@ -61,7 +61,6 @@ export const list = query({
   handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
     const result = await ctx.db
       .query("comments")
-      .withIndex("by_created")
       .order("desc")
       .paginate(args.paginationOpts);
 
