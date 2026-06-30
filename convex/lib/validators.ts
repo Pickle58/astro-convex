@@ -34,3 +34,13 @@ export type Viewer = Infer<typeof viewerValidator>;
 export const setNameArgsValidator = {
   name: v.string(),
 };
+
+export const suggestCommentArgsValidator = {
+  draft: v.string(),
+};
+
+export const suggestionQuotaValidator = v.object({
+  used: v.number(),
+  limit: v.number(),
+  remaining: v.number(),
+});
