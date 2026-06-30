@@ -1,8 +1,6 @@
-import {
-  paginationOptsValidator,
-  paginationResultValidator,
-} from "convex/server";
-import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
+import { type Infer, v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { ensureCurrentUser } from "./lib/auth";
 import {
@@ -10,22 +8,15 @@ import {
   normalizeCommentPage,
 } from "./lib/comments";
 import { isUsableDisplayName } from "./lib/displayName";
-
-const commentValidator = v.object({
-  _id: v.id("comments"),
-  _creationTime: v.number(),
-  userId: v.id("users"),
-  author: v.string(),
-  content: v.string(),
-});
+import {
+  createCommentArgsValidator,
+  paginatedCommentsValidator,
+} from "./lib/validators";
 
 export const create = mutation({
-  args: {
-    content: v.string(),
-    displayName: v.string(),
-  },
+  args: createCommentArgsValidator,
   returns: v.id("comments"),
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Id<"comments">> => {
     const user = await ensureCurrentUser(ctx);
 
     const displayName = args.displayName.trim();
@@ -56,7 +47,7 @@ export const create = mutation({
 export const count = query({
   args: {},
   returns: v.number(),
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<number> => {
     return await countComments(ctx);
   },
 });
@@ -66,8 +57,8 @@ export const list = query({
   args: {
     paginationOpts: paginationOptsValidator,
   },
-  returns: paginationResultValidator(commentValidator),
-  handler: async (ctx, args) => {
+  returns: paginatedCommentsValidator,
+  handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
     const result = await ctx.db
       .query("comments")
       .withIndex("by_created")
@@ -87,8 +78,8 @@ export const listByAuthor = query({
     author: v.string(),
     paginationOpts: paginationOptsValidator,
   },
-  returns: paginationResultValidator(commentValidator),
-  handler: async (ctx, args) => {
+  returns: paginatedCommentsValidator,
+  handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
     const author = args.author.trim();
     if (!author) {
       throw new Error("Author name is required");
@@ -112,8 +103,8 @@ export const listByCurrentUser = query({
   args: {
     paginationOpts: paginationOptsValidator,
   },
-  returns: paginationResultValidator(commentValidator),
-  handler: async (ctx, args) => {
+  returns: paginatedCommentsValidator,
+  handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
     const user = await ensureCurrentUser(ctx);
 
     const result = await ctx.db

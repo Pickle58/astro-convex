@@ -10,7 +10,10 @@
     "preview": "wrangler dev",
     "deploy": "astro build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p convex/tsconfig.json"
   },
   "engines": {
     "node": ">=22.15.0"
@@ -29,6 +32,7 @@
     "react-dom": "^19.2.5"
   },
   "devDependencies": {
+    "@convex-dev/eslint-plugin": "^1.0.0",
     "@tailwindcss/vite": "^4.2.2",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
