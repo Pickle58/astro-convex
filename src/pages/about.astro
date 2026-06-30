@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    <p class="mb-2 text-sm text-emerald-600">Statically prerendered at build time</p>
+    <h1 class="text-3xl font-bold mb-4">About</h1>
+    <p class="mb-4 leading-relaxed text-gray-700">
+      This page is prerendered as static HTML. It ships with the Cloudflare
+      Workers asset bundle and does not hit the server on each request.
+    </p>
+    <p class="leading-relaxed text-gray-700">
+      The <a class="text-indigo-600 hover:underline" href="/">comments page</a>
+      opts out of prerendering so Clerk auth and Convex islands can run with SSR.
+    </p>
+  </main>
+</Layout>

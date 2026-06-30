@@ -1,0 +1,41 @@
+{
+  "name": "astro-convex",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "concurrently -n astro,convex -c blue,magenta \"pnpm dev:astro\" \"pnpm dev:convex\"",
+    "dev:astro": "node scripts/check-node-version.mjs && cross-env NODE_OPTIONS=--max-http-header-size=65536 astro dev",
+    "dev:convex": "convex dev",
+    "build": "astro build",
+    "preview": "wrangler dev",
+    "deploy": "astro build && wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "format": "prettier --write ."
+  },
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.0.0",
+    "@astrojs/react": "^5.0.0",
+    "@clerk/astro": "^3.4.10",
+    "@clerk/react": "^6.11.1",
+    "@clerk/shared": "^4.23.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^6.4.8",
+    "convex": "^1.36.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tailwindcss": "^4.2.2",
+    "wrangler": "^4.40.0"
+  }
+}

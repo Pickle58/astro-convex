@@ -1,0 +1,10 @@
+allowBuilds:
+  '@clerk/shared': true
+  "@tailwindcss/oxide": true
+  esbuild: true
+  sharp: true
+  workerd: true
+minimumReleaseAgeExclude:
+  - '@clerk/astro@3.4.10'
+  - '@clerk/backend@3.9.0'
+  - '@clerk/shared@4.23.0'

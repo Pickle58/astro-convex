@@ -1,0 +1,6 @@
+# Wrangler local dev secrets (copy to .dev.vars, do not commit)
+CLERK_SECRET_KEY=sk_test_...
+
+# Public vars for local `wrangler dev` (also set in Cloudflare dashboard for production)
+PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CONVEX_URL=https://your-deployment.convex.cloud
