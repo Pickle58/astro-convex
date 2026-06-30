@@ -1,6 +1,7 @@
 import { usePaginatedQuery, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
+import type { Comment } from "../lib/convex-types";
 
 const PAGE_SIZE = 10;
 
@@ -46,7 +47,7 @@ export function CommentList() {
         </p>
       )}
 
-      {visibleResults.map((comment) => (
+      {visibleResults.map((comment: Comment) => (
         <article
           key={comment._id}
           className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm"
