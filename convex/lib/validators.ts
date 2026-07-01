@@ -44,3 +44,10 @@ export const suggestionQuotaValidator = v.object({
   limit: v.number(),
   remaining: v.number(),
 });
+
+export const threadContextValidator = v.union(
+  v.literal("coach"),
+  v.literal("assistant"),
+);
+
+export type ThreadContext = Infer<typeof threadContextValidator>;

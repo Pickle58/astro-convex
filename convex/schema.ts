@@ -21,4 +21,12 @@ export default defineSchema({
     userId: v.id("users"),
     model: v.string(),
   }).index("by_user", ["userId"]),
+
+  threadContexts: defineTable({
+    threadId: v.string(),
+    userId: v.string(),
+    context: v.union(v.literal("coach"), v.literal("assistant")),
+  })
+    .index("by_user_and_context", ["userId", "context"])
+    .index("by_thread", ["threadId"]),
 });
