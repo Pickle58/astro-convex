@@ -1,0 +1,26 @@
+✓ Lockfile passes supply-chain policies (verified 22h ago)
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 17, reused 12, downloaded 0, added 0
+Progress: resolved 20, reused 18, downloaded 0, added 0
+Progress: resolved 24, reused 21, downloaded 0, added 0
+Progress: resolved 28, reused 26, downloaded 0, added 0
+Progress: resolved 151, reused 58, downloaded 0, added 0
+Progress: resolved 208, reused 93, downloaded 0, added 0
+Progress: resolved 309, reused 144, downloaded 0, added 0
+Progress: resolved 358, reused 231, downloaded 0, added 0
+Progress: resolved 369, reused 262, downloaded 0, added 0
+Progress: resolved 404, reused 305, downloaded 0, added 0
+Progress: resolved 443, reused 342, downloaded 0, added 0
+Progress: resolved 542, reused 367, downloaded 0, added 0
+Progress: resolved 543, reused 367, downloaded 0, added 0
+Progress: resolved 616, reused 467, downloaded 0, added 0
+Packages: +18
+++++++++++++++++++
+Progress: resolved 646, reused 499, downloaded 0, added 0
+Progress: resolved 646, reused 499, downloaded 0, added 0, done
+
+dependencies:
++ react-markdown 10.1.0
++ remark-gfm 4.0.1
+
+Done in 20.1s using pnpm v11.6.0

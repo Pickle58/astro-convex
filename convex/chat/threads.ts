@@ -5,7 +5,7 @@ import { components } from "../_generated/api";
 import { mutation, query } from "../_generated/server";
 import { getAgentUserId, requireAgentUserId } from "../lib/agentAuth";
 import { filterThreadsByContext, insertThreadContext } from "../lib/threadContext";
-import type { ThreadContext } from "../lib/threadContext";
+import { defaultThreadTitle, resolveThreadTitle } from "../lib/threadTitles";
 import { threadContextValidator } from "../lib/validators";
 
 const emptyThreadPage = {
@@ -13,10 +13,6 @@ const emptyThreadPage = {
   isDone: true,
   continueCursor: "",
 };
-
-function defaultTitle(context: ThreadContext): string {
-  return context === "coach" ? "Comment coach" : "Assistant";
-}
 
 export const listThreads = query({
   args: {
@@ -36,7 +32,15 @@ export const listThreads = query({
       order: "desc",
     });
 
-    return await filterThreadsByContext(ctx, userId, args.context, threads);
+    const filtered = await filterThreadsByContext(ctx, userId, args.context, threads);
+    const page = await Promise.all(
+      filtered.page.map(async (thread) => ({
+        ...thread,
+        title: await resolveThreadTitle(ctx, args.context, thread),
+      })),
+    );
+
+    return { ...filtered, page };
   },
 });
 
@@ -48,7 +52,7 @@ export const createNewThread = mutation({
   returns: v.string(),
   handler: async (ctx, args) => {
     const userId = await requireAgentUserId(ctx);
-    const title = args.title ?? defaultTitle(args.context);
+    const title = args.title?.trim() || defaultThreadTitle(args.context);
 
     const threadId = await createThread(ctx, components.agent, {
       userId,
