@@ -8,9 +8,16 @@
  * @module
  */
 
+import type * as agents_commentCoach from "../agents/commentCoach.js";
+import type * as agents_tools from "../agents/tools.js";
 import type * as ai from "../ai.js";
+import type * as chat_actions from "../chat/actions.js";
+import type * as chat_messages from "../chat/messages.js";
+import type * as chat_threads from "../chat/threads.js";
 import type * as comments from "../comments.js";
+import type * as commentsInternal from "../commentsInternal.js";
 import type * as crons from "../crons.js";
+import type * as lib_agentAuth from "../lib/agentAuth.js";
 import type * as lib_aiConfig from "../lib/aiConfig.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_comments from "../lib/comments.js";
@@ -28,9 +35,16 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "agents/commentCoach": typeof agents_commentCoach;
+  "agents/tools": typeof agents_tools;
   ai: typeof ai;
+  "chat/actions": typeof chat_actions;
+  "chat/messages": typeof chat_messages;
+  "chat/threads": typeof chat_threads;
   comments: typeof comments;
+  commentsInternal: typeof commentsInternal;
   crons: typeof crons;
+  "lib/agentAuth": typeof lib_agentAuth;
   "lib/aiConfig": typeof lib_aiConfig;
   "lib/auth": typeof lib_auth;
   "lib/comments": typeof lib_comments;
@@ -68,4 +82,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  agent: import("@convex-dev/agent/_generated/component.js").ComponentApi<"agent">;
+};

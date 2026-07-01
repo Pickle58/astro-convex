@@ -27,10 +27,15 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.4.8",
+    "@ai-sdk/openai": "^3.0.10",
+    "@convex-dev/agent": "^0.6.4",
+    "ai": "^6.0.35",
     "convex": "^1.36.1",
+    "convex-helpers": "^0.1.114",
     "openai": "^6.45.0",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@convex-dev/eslint-plugin": "^1.0.0",
