@@ -126,7 +126,7 @@ function AgentChatPanel({ threadId }: { threadId: string }) {
 export function CommentAgentChat() {
   const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
   const { threadId, isCreatingThread, error, startNewThread, clearThread } =
-    useCommentCoachThread(isAuthenticated);
+    useCommentCoachThread();
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {

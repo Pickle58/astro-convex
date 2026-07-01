@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, useConvexAuth } from "convex/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
 
@@ -33,10 +33,12 @@ function readInitialThreadId(): string | null {
   return readThreadIdFromHash() ?? readThreadIdFromStorage();
 }
 
-export function useCommentCoachThread(isAuthenticated: boolean) {
+export function useCommentCoachThread() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
   const createThread = useMutation(api.chat.threads.createNewThread);
+  const canUseConvex = isAuthenticated && !isAuthLoading;
   const [threadId, setThreadIdState] = useState<string | null>(() =>
-    isAuthenticated ? readInitialThreadId() : null,
+    readInitialThreadId(),
   );
   const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [error, setError] = useState<string>();
@@ -49,7 +51,7 @@ export function useCommentCoachThread(isAuthenticated: boolean) {
 
   const recentThreads = useQuery(
     api.chat.threads.listThreads,
-    isAuthenticated && threadId === null
+    canUseConvex && threadId === null
       ? { paginationOpts: { numItems: 1, cursor: null } }
       : "skip",
   );
@@ -82,7 +84,7 @@ export function useCommentCoachThread(isAuthenticated: boolean) {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!canUseConvex) {
       return;
     }
 
@@ -151,7 +153,7 @@ export function useCommentCoachThread(isAuthenticated: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, threadId, recentThreads, createThread, setThreadId]);
+  }, [canUseConvex, threadId, recentThreads, createThread, setThreadId]);
 
   const startNewThread = useCallback(async () => {
     setIsCreatingThread(true);

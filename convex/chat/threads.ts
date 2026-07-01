@@ -3,7 +3,13 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { components } from "../_generated/api";
 import { mutation, query } from "../_generated/server";
-import { requireAgentUserId } from "../lib/agentAuth";
+import { getAgentUserId, requireAgentUserId } from "../lib/agentAuth";
+
+const emptyThreadPage = {
+  page: [],
+  isDone: true,
+  continueCursor: "",
+};
 
 export const listThreads = query({
   args: {
@@ -11,10 +17,15 @@ export const listThreads = query({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await requireAgentUserId(ctx);
+    const userId = await getAgentUserId(ctx);
+    if (!userId) {
+      return emptyThreadPage;
+    }
+
     return await ctx.runQuery(components.agent.threads.listThreadsByUserId, {
       userId,
       paginationOpts: args.paginationOpts,
+      order: "desc",
     });
   },
 });
