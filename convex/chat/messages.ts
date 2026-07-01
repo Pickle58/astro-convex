@@ -4,22 +4,26 @@ import { v } from "convex/values";
 import { components, internal } from "../_generated/api";
 import { mutation, query } from "../_generated/server";
 import { authorizeThreadAccess, requireAgentUserId } from "../lib/agentAuth";
+import { requireThreadContext } from "../lib/threadContext";
+import { threadContextValidator } from "../lib/validators";
 
 export const sendMessage = mutation({
   args: {
     threadId: v.string(),
     prompt: v.string(),
+    context: threadContextValidator,
   },
   returns: v.null(),
-  handler: async (ctx, { threadId, prompt }) => {
+  handler: async (ctx, { threadId, prompt, context }) => {
     await authorizeThreadAccess(ctx, threadId);
+
+    const userId = await requireAgentUserId(ctx);
+    await requireThreadContext(ctx, threadId, context, userId);
 
     const promptText = prompt.trim();
     if (!promptText) {
       throw new Error("Message is required");
     }
-
-    const userId = await requireAgentUserId(ctx);
 
     const { messageId } = await saveMessage(ctx, components.agent, {
       threadId,
@@ -27,10 +31,18 @@ export const sendMessage = mutation({
       prompt: promptText,
     });
 
-    await ctx.scheduler.runAfter(0, internal.chat.actions.generateResponse, {
-      threadId,
-      promptMessageId: messageId,
-    });
+    if (context === "coach") {
+      await ctx.scheduler.runAfter(0, internal.chat.actions.generateCoachResponse, {
+        threadId,
+        promptMessageId: messageId,
+      });
+    } else {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.assistant.actions.generateAssistantResponse,
+        { threadId, promptMessageId: messageId },
+      );
+    }
 
     return null;
   },
