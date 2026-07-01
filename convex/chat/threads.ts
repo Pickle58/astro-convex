@@ -1,4 +1,4 @@
-import { createThread } from "@convex-dev/agent";
+import { createThread, getThreadMetadata, updateThreadMetadata } from "@convex-dev/agent";
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { components } from "../_generated/api";
