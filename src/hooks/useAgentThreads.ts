@@ -1,77 +1,95 @@
 import { useMutation, useQuery, useConvexAuth } from "convex/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
+import type { ThreadContext } from "../components/agent/types";
 
-const STORAGE_KEY = "commentCoachThreadId";
+function hashPrefix(context: ThreadContext): string {
+  return `${context}:`;
+}
 
-function readThreadIdFromHash(): string | null {
+function readThreadIdFromHash(context: ThreadContext): string | null {
   if (typeof window === "undefined") {
     return null;
   }
   const hash = window.location.hash.replace(/^#/, "").trim();
-  return hash.length > 0 ? hash : null;
+  const prefix = hashPrefix(context);
+  if (hash.startsWith(prefix)) {
+    const id = hash.slice(prefix.length).trim();
+    return id.length > 0 ? id : null;
+  }
+  return null;
 }
 
-function readThreadIdFromStorage(): string | null {
+function readThreadIdFromStorage(storageKey: string): string | null {
   if (typeof window === "undefined") {
     return null;
   }
-  return localStorage.getItem(STORAGE_KEY);
+  return localStorage.getItem(storageKey);
 }
 
-function persistThreadId(threadId: string): void {
+function persistThreadId(
+  storageKey: string,
+  context: ThreadContext,
+  threadId: string,
+): void {
   if (typeof window === "undefined") {
     return;
   }
-  localStorage.setItem(STORAGE_KEY, threadId);
-  if (readThreadIdFromHash() !== threadId) {
-    window.location.hash = threadId;
+  localStorage.setItem(storageKey, threadId);
+  const expectedHash = `${hashPrefix(context)}${threadId}`;
+  if (window.location.hash.replace(/^#/, "") !== expectedHash) {
+    window.location.hash = expectedHash;
   }
 }
 
-function readInitialThreadId(): string | null {
-  return readThreadIdFromHash() ?? readThreadIdFromStorage();
-}
+type UseAgentThreadsOptions = {
+  context: ThreadContext;
+  storageKey: string;
+};
 
-export function useCommentCoachThread() {
+export function useAgentThreads({ context, storageKey }: UseAgentThreadsOptions) {
   const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
   const createThread = useMutation(api.chat.threads.createNewThread);
   const canUseConvex = isAuthenticated && !isAuthLoading;
   const [threadId, setThreadIdState] = useState<string | null>(() =>
-    readInitialThreadId(),
+    readThreadIdFromHash(context) ?? readThreadIdFromStorage(storageKey),
   );
   const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [error, setError] = useState<string>();
   const isEnsuringRef = useRef(false);
 
-  const setThreadId = useCallback((id: string) => {
-    setThreadIdState(id);
-    persistThreadId(id);
-  }, []);
+  const setThreadId = useCallback(
+    (id: string) => {
+      setThreadIdState(id);
+      persistThreadId(storageKey, context, id);
+    },
+    [storageKey, context],
+  );
 
   const recentThreads = useQuery(
     api.chat.threads.listThreads,
     canUseConvex && threadId === null
-      ? { paginationOpts: { numItems: 1, cursor: null } }
+      ? { context, paginationOpts: { numItems: 1, cursor: null } }
       : "skip",
   );
 
   useEffect(() => {
     const onHashChange = () => {
-      const id = readThreadIdFromHash();
+      const id = readThreadIdFromHash(context);
       if (id) {
         setThreadIdState(id);
-        localStorage.setItem(STORAGE_KEY, id);
+        localStorage.setItem(storageKey, id);
       }
     };
 
     const onStorage = (event: StorageEvent) => {
-      if (event.key !== STORAGE_KEY || !event.newValue) {
+      if (event.key !== storageKey || !event.newValue) {
         return;
       }
       setThreadIdState(event.newValue);
-      if (readThreadIdFromHash() !== event.newValue) {
-        window.location.hash = event.newValue;
+      const expectedHash = `${hashPrefix(context)}${event.newValue}`;
+      if (window.location.hash.replace(/^#/, "") !== expectedHash) {
+        window.location.hash = expectedHash;
       }
     };
 
@@ -81,25 +99,22 @@ export function useCommentCoachThread() {
       window.removeEventListener("hashchange", onHashChange);
       window.removeEventListener("storage", onStorage);
     };
-  }, []);
+  }, [storageKey, context]);
 
   useEffect(() => {
     if (!canUseConvex) {
       return;
     }
-
     if (threadId !== null || isEnsuringRef.current) {
       return;
     }
 
-    const fromUrl = readThreadIdFromHash();
-    const fromStorage = readThreadIdFromStorage();
-    const existing = fromUrl ?? fromStorage;
+    const existing =
+      readThreadIdFromHash(context) ?? readThreadIdFromStorage(storageKey);
     if (existing) {
       setThreadId(existing);
       return;
     }
-
     if (recentThreads === undefined) {
       return;
     }
@@ -119,15 +134,16 @@ export function useCommentCoachThread() {
           return;
         }
 
-        const racedThreadId = readThreadIdFromStorage() ?? readThreadIdFromHash();
-        if (racedThreadId) {
+        const raced =
+          readThreadIdFromStorage(storageKey) ?? readThreadIdFromHash(context);
+        if (raced) {
           if (!cancelled) {
-            setThreadId(racedThreadId);
+            setThreadId(raced);
           }
           return;
         }
 
-        const id = await createThread({ title: "Comment coach" });
+        const id = await createThread({ context });
         if (!cancelled) {
           setThreadId(id);
         }
@@ -149,17 +165,16 @@ export function useCommentCoachThread() {
     }
 
     void ensureThread();
-
     return () => {
       cancelled = true;
     };
-  }, [canUseConvex, threadId, recentThreads, createThread, setThreadId]);
+  }, [canUseConvex, threadId, recentThreads, createThread, setThreadId, context, storageKey]);
 
   const startNewThread = useCallback(async () => {
     setIsCreatingThread(true);
     setError(undefined);
     try {
-      const id = await createThread({ title: "Comment coach" });
+      const id = await createThread({ context });
       setThreadId(id);
     } catch (createError) {
       console.error(createError);
@@ -171,21 +186,26 @@ export function useCommentCoachThread() {
     } finally {
       setIsCreatingThread(false);
     }
-  }, [createThread, setThreadId]);
+  }, [createThread, setThreadId, context]);
 
   const clearThread = useCallback(() => {
     setThreadIdState(null);
     isEnsuringRef.current = false;
     if (typeof window !== "undefined") {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(storageKey);
       if (window.location.hash) {
-        history.replaceState(null, "", window.location.pathname + window.location.search);
+        history.replaceState(
+          null,
+          "",
+          window.location.pathname + window.location.search,
+        );
       }
     }
-  }, []);
+  }, [storageKey]);
 
   return {
     threadId,
+    setThreadId,
     isCreatingThread,
     error,
     startNewThread,

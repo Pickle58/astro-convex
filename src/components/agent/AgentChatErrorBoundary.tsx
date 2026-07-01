@@ -1,22 +1,27 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { withConvexProvider } from "../lib/convex.tsx";
-import { CommentAgentChat } from "./CommentAgentChat";
-import { CommentForm, useEnsureUser } from "./CommentForm";
-import { CommentList } from "./CommentList";
-import { AgentChatErrorBoundary } from "./agent/AgentChatErrorBoundary";
 
-class CommentFormErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean; resetKey: number }
+type AgentChatErrorBoundaryProps = {
+  children: ReactNode;
+  label: string;
+};
+
+type AgentChatErrorBoundaryState = {
+  hasError: boolean;
+  resetKey: number;
+};
+
+export class AgentChatErrorBoundary extends Component<
+  AgentChatErrorBoundaryProps,
+  AgentChatErrorBoundaryState
 > {
-  state = { hasError: false, resetKey: 0 };
+  state: AgentChatErrorBoundaryState = { hasError: false, resetKey: 0 };
 
   static getDerivedStateFromError(): { hasError: boolean } {
     return { hasError: true };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error("CommentForm error:", error, info.componentStack);
+    console.error(`${this.props.label} error:`, error, info.componentStack);
   }
 
   handleRetry = (): void => {
@@ -29,10 +34,9 @@ class CommentFormErrorBoundary extends Component<
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="mb-8 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mb-10 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <p>
-            Comment form is temporarily unavailable. Comments below may still
-            load. Please try refreshing the page.
+            {this.props.label} is temporarily unavailable.
             {import.meta.env.DEV && (
               <>
                 {" "}
@@ -55,19 +59,3 @@ class CommentFormErrorBoundary extends Component<
     return <div key={this.state.resetKey}>{this.props.children}</div>;
   }
 }
-
-export default withConvexProvider(function Comments() {
-  useEnsureUser();
-
-  return (
-    <>
-      <AgentChatErrorBoundary label="Comment coach">
-        <CommentAgentChat />
-      </AgentChatErrorBoundary>
-      <CommentFormErrorBoundary>
-        <CommentForm />
-      </CommentFormErrorBoundary>
-      <CommentList />
-    </>
-  );
-});
