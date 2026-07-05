@@ -1,11 +1,37 @@
 import { useAuth } from "@clerk/astro/react";
 import { CONVEX_URL } from "astro:env/client";
 import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
-import { type FunctionComponent, type JSX, useCallback, useMemo } from "react";
+import {
+  createContext,
+  type FunctionComponent,
+  type JSX,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+} from "react";
 
 const client = new ConvexReactClient(CONVEX_URL);
 
-function useConvexAuthFromClerk() {
+type ConvexAuthShape = {
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  fetchAccessToken: (args: { forceRefreshToken: boolean }) => Promise<string | null>;
+};
+
+const defaultConvexAuth: ConvexAuthShape = {
+  isLoading: true,
+  isAuthenticated: false,
+  fetchAccessToken: async () => null,
+};
+
+const ConvexAuthBridgeContext = createContext<ConvexAuthShape>(defaultConvexAuth);
+
+function useConvexAuthBridge() {
+  return useContext(ConvexAuthBridgeContext);
+}
+
+function ConvexProviderBridge({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn, getToken } = useAuth();
 
   const fetchAccessToken = useCallback(
@@ -28,13 +54,21 @@ function useConvexAuthFromClerk() {
     [getToken, isSignedIn],
   );
 
-  return useMemo(
+  const auth = useMemo(
     () => ({
       isLoading: !isLoaded,
       isAuthenticated: !!isSignedIn,
       fetchAccessToken,
     }),
     [isLoaded, isSignedIn, fetchAccessToken],
+  );
+
+  return (
+    <ConvexAuthBridgeContext.Provider value={auth}>
+      <ConvexProviderWithAuth client={client} useAuth={useConvexAuthBridge}>
+        {children}
+      </ConvexProviderWithAuth>
+    </ConvexAuthBridgeContext.Provider>
   );
 }
 
@@ -44,9 +78,9 @@ export function withConvexProvider<Props extends JSX.IntrinsicAttributes>(
 ) {
   return function WithConvexProvider(props: Props) {
     return (
-      <ConvexProviderWithAuth client={client} useAuth={useConvexAuthFromClerk}>
+      <ConvexProviderBridge>
         <Component {...props} />
-      </ConvexProviderWithAuth>
+      </ConvexProviderBridge>
     );
   };
 }
