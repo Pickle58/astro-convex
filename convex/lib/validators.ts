@@ -8,6 +8,7 @@ export const commentValidator = v.object({
   userId: v.id("users"),
   author: v.string(),
   content: v.string(),
+  postId: v.optional(v.id("posts")),
 });
 
 export type Comment = Infer<typeof commentValidator>;
@@ -20,6 +21,7 @@ export type PaginatedComments = Infer<typeof paginatedCommentsValidator>;
 export const createCommentArgsValidator = {
   content: v.string(),
   displayName: v.string(),
+  postId: v.optional(v.id("posts")),
 };
 
 export const viewerValidator = v.union(

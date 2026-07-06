@@ -13,9 +13,28 @@ export default defineSchema({
     userId: v.id("users"),
     author: v.string(),
     content: v.string(),
+    // Optional so pre-blog global comments remain valid; blog comments always set it.
+    postId: v.optional(v.id("posts")),
   })
     .index("by_user", ["userId"])
-    .index("by_author", ["author"]),
+    .index("by_author", ["author"])
+    .index("by_post", ["postId"]),
+
+  posts: defineTable({
+    authorId: v.id("users"),
+    authorName: v.string(),
+    title: v.string(),
+    slug: v.string(),
+    body: v.string(), // Markdown
+    excerpt: v.optional(v.string()),
+    coverImageId: v.optional(v.id("_storage")),
+    status: v.union(v.literal("draft"), v.literal("published")),
+    publishedAt: v.optional(v.number()),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_author", ["authorId"])
+    .index("by_status_and_published", ["status", "publishedAt"]),
 
   commentSuggestions: defineTable({
     userId: v.id("users"),

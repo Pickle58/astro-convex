@@ -1,0 +1,18 @@
+---
+export const prerender = false;
+
+import PostEditor from "../../../components/blog/PostEditor.tsx";
+import Layout from "../../../layouts/Layout.astro";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Edit post">
+  <main class="mx-auto max-w-3xl px-4 py-8">
+    <PostEditor postId={id} client:only="react" />
+  </main>
+</Layout>

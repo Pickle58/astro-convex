@@ -2,9 +2,10 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { Authenticated, Unauthenticated, useConvexAuth } from "convex/react";
 import { type FormEvent, useEffect, useState } from "react";
 import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import { getUtcDayStart } from "../../convex/lib/utcDayStart";
 
-export function CommentForm() {
+export function CommentForm({ postId }: { postId?: Id<"posts"> }) {
   const createComment = useMutation(api.comments.create);
   const suggestComment = useAction(api.ai.suggestComment);
   const { isAuthenticated } = useConvexAuth();
@@ -85,6 +86,7 @@ export function CommentForm() {
       await createComment({
         displayName: displayName.trim(),
         content: content.trim(),
+        postId,
       });
       setDisplayName("");
       setContent("");
