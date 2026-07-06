@@ -1,14 +1,11 @@
 import { Authenticated, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { withConvexProvider } from "../../lib/convex.tsx";
+import { formatPostDate } from "../../lib/date";
 import type { Post } from "../../lib/convex-types";
 import { useEnsureUser } from "../CommentForm";
 
 const PAGE_SIZE = 10;
-
-function formatDate(post: Post): string {
-  return new Date(post.publishedAt ?? post._creationTime).toLocaleDateString();
-}
 
 function PostCard({ post }: { post: Post }) {
   return (
@@ -29,7 +26,7 @@ function PostCard({ post }: { post: Post }) {
           {post.title}
         </h2>
         <p className="mb-3 text-sm text-gray-500">
-          By {post.authorName} · {formatDate(post)}
+          By {post.authorName} · {formatPostDate(post)}
         </p>
         {post.excerpt && (
           <p className="line-clamp-3 text-gray-700">{post.excerpt}</p>

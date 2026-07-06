@@ -2,7 +2,7 @@ import { paginationOptsValidator } from "convex/server";
 import { type Infer, v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
-import { ensureCurrentUser, getCurrentUserOrNull } from "./lib/auth";
+import { ensureCurrentUser, getCurrentUserOrNull, syncDisplayName } from "./lib/auth";
 import {
   assertAuthor,
   normalizeBody,
@@ -54,9 +54,7 @@ export const create = mutation({
     const displayName = normalizePostDisplayName(args.displayName);
     const excerpt = normalizeExcerpt(args.excerpt);
 
-    if (user.name !== displayName) {
-      await ctx.db.patch("users", user._id, { name: displayName });
-    }
+    await syncDisplayName(ctx, user, displayName);
 
     const now = Date.now();
     const slug = await generateUniqueSlug(ctx, title);
@@ -115,9 +113,7 @@ export const update = mutation({
     if (args.displayName !== undefined) {
       const displayName = normalizePostDisplayName(args.displayName);
       patch.authorName = displayName;
-      if (user.name !== displayName) {
-        await ctx.db.patch("users", user._id, { name: displayName });
-      }
+      await syncDisplayName(ctx, user, displayName);
     }
     if (args.status !== undefined) {
       patch.status = args.status;
@@ -142,6 +138,19 @@ export const remove = mutation({
       return null;
     }
     assertAuthor(post, user._id);
+
+    // Delete all comments scoped to this post before removing the post document.
+    let cursor: string | null = null;
+    while (true) {
+      const { page, isDone, continueCursor } = await ctx.db
+        .query("comments")
+        .withIndex("by_post", (q) => q.eq("postId", args.postId))
+        .paginate({ numItems: 100, cursor });
+      await Promise.all(page.map((c) => ctx.db.delete("comments", c._id)));
+      if (isDone) break;
+      cursor = continueCursor;
+    }
+
     await ctx.db.delete("posts", args.postId);
     return null;
   },
@@ -178,13 +187,14 @@ export const listMyDrafts = query({
       return [];
     }
 
-    const authored = await ctx.db
+    const drafts = await ctx.db
       .query("posts")
-      .withIndex("by_author", (q) => q.eq("authorId", user._id))
+      .withIndex("by_author_and_status", (q) =>
+        q.eq("authorId", user._id).eq("status", "draft"),
+      )
       .order("desc")
       .take(100);
 
-    const drafts = authored.filter((post) => post.status === "draft");
     return await resolvePosts(ctx, drafts, user._id);
   },
 });

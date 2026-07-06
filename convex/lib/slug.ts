@@ -21,9 +21,12 @@ async function slugExists(
   return existing !== null;
 }
 
+const MAX_SLUG_ATTEMPTS = 50;
+
 /**
- * Generate a slug from a title, appending -2, -3, ... until it is unique.
+ * Generate a slug from a title, appending -2, -3, … until it is unique.
  * Collisions are resolved silently so callers never see an error.
+ * If MAX_SLUG_ATTEMPTS are exhausted a timestamp suffix is used as a fallback.
  */
 export async function generateUniqueSlug(
   ctx: MutationCtx,
@@ -35,8 +38,13 @@ export async function generateUniqueSlug(
   }
 
   let suffix = 2;
-  while (await slugExists(ctx, `${base}-${suffix}`)) {
+  while (suffix <= MAX_SLUG_ATTEMPTS) {
+    const candidate = `${base}-${suffix}`;
+    if (!(await slugExists(ctx, candidate))) {
+      return candidate;
+    }
     suffix += 1;
   }
-  return `${base}-${suffix}`;
+
+  return `${base}-${Date.now()}`;
 }

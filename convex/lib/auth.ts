@@ -2,8 +2,23 @@ import type { Doc } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import { isUsableDisplayName, normalizeDisplayName } from "./displayName";
 
+/**
+ * Persist a display-name change to the users table when the name differs from
+ * the stored value.  Call this after validating and normalising the name so
+ * all comment/post authors stay in sync with the user's chosen display name.
+ */
+export async function syncDisplayName(
+  ctx: MutationCtx,
+  user: Doc<"users">,
+  displayName: string,
+): Promise<void> {
+  if (user.name !== displayName) {
+    await ctx.db.patch("users", user._id, { name: displayName });
+  }
+}
+
 export async function ensureCurrentUser(
-  ctx: QueryCtx | MutationCtx,
+  ctx: MutationCtx,
 ): Promise<Doc<"users">> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
