@@ -1,14 +1,12 @@
 ---
 export const prerender = false;
 
-import Comments from "../components/Comments.tsx";
+import BlogIndex from "../components/blog/BlogIndex.tsx";
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Comments">
-  <main class="max-w-3xl mx-auto px-4 py-8">
-    <p class="mb-2 text-sm text-indigo-600">Server-rendered on demand</p>
-    <h2 class="text-2xl font-bold mb-6">Comments</h2>
-    <Comments client:only="react" />
+<Layout title="Blog">
+  <main class="mx-auto max-w-3xl px-4 py-8">
+    <BlogIndex client:only="react" />
   </main>
 </Layout>

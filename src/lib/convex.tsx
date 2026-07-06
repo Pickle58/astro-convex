@@ -3,8 +3,6 @@ import { CONVEX_URL } from "astro:env/client";
 import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
 import {
   createContext,
-  type FunctionComponent,
-  type JSX,
   type ReactNode,
   useCallback,
   useContext,
@@ -73,8 +71,8 @@ function ConvexProviderBridge({ children }: { children: ReactNode }) {
 }
 
 // @clerk/astro loads Clerk globally; React islands only need Convex auth wiring.
-export function withConvexProvider<Props extends JSX.IntrinsicAttributes>(
-  Component: FunctionComponent<Props>,
+export function withConvexProvider<Props extends object>(
+  Component: (props: Props) => ReactNode,
 ) {
   return function WithConvexProvider(props: Props) {
     return (

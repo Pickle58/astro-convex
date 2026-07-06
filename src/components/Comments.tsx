@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import type { Id } from "../../convex/_generated/dataModel";
 import { withConvexProvider } from "../lib/convex.tsx";
 import { CommentAgentChat } from "./CommentAgentChat";
 import { CommentForm, useEnsureUser } from "./CommentForm";
@@ -56,7 +57,8 @@ class CommentFormErrorBoundary extends Component<
   }
 }
 
-export default withConvexProvider(function Comments() {
+/** Comments UI without a Convex provider — for use inside an existing island. */
+export function CommentsBody({ postId }: { postId?: Id<"posts"> }) {
   useEnsureUser();
 
   return (
@@ -65,9 +67,17 @@ export default withConvexProvider(function Comments() {
         <CommentAgentChat />
       </AgentChatErrorBoundary>
       <CommentFormErrorBoundary>
-        <CommentForm />
+        <CommentForm postId={postId} />
       </CommentFormErrorBoundary>
-      <CommentList />
+      <CommentList postId={postId} />
     </>
   );
+}
+
+export default withConvexProvider(function Comments({
+  postId,
+}: {
+  postId?: Id<"posts">;
+}) {
+  return <CommentsBody postId={postId} />;
 });

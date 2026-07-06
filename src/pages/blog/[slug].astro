@@ -1,0 +1,18 @@
+---
+export const prerender = false;
+
+import PostDetail from "../../components/blog/PostDetail.tsx";
+import Layout from "../../layouts/Layout.astro";
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Post">
+  <main class="mx-auto max-w-3xl px-4 py-8">
+    <PostDetail slug={slug} client:only="react" />
+  </main>
+</Layout>

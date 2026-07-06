@@ -1,17 +1,30 @@
 import { usePaginatedQuery, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import type { Comment } from "../lib/convex-types";
 
 const PAGE_SIZE = 10;
 
-export function CommentList() {
-  const totalCount = useQuery(api.comments.count);
-  const { results, status, loadMore } = usePaginatedQuery(
-    api.comments.list,
-    {},
-    { initialNumItems: PAGE_SIZE },
-  );
+type PaginationStatus =
+  | "LoadingFirstPage"
+  | "CanLoadMore"
+  | "LoadingMore"
+  | "Exhausted";
+
+type CommentListViewProps = {
+  totalCount: number | undefined;
+  results: Comment[];
+  status: PaginationStatus;
+  loadMore: (numItems: number) => void;
+};
+
+function CommentListView({
+  totalCount,
+  results,
+  status,
+  loadMore,
+}: CommentListViewProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   if (status === "LoadingFirstPage") {
@@ -19,21 +32,18 @@ export function CommentList() {
   }
 
   if (results.length === 0) {
-    return <p className="py-4 text-center text-gray-500">No comments found.</p>;
+    return <p className="py-4 text-center text-gray-500">No comments yet.</p>;
   }
 
   const visibleResults = results.slice(0, visibleCount);
   const hasMoreOnServer = status === "CanLoadMore";
   const hasMoreLocally = results.length > visibleCount;
-  const hasMoreByCount =
-    totalCount !== undefined && visibleCount < totalCount;
+  const hasMoreByCount = totalCount !== undefined && visibleCount < totalCount;
   const showLoadMore = hasMoreLocally || hasMoreOnServer || hasMoreByCount;
 
   const handleLoadMore = () => {
     const nextVisibleCount = visibleCount + PAGE_SIZE;
-
     setVisibleCount(nextVisibleCount);
-
     if (nextVisibleCount > results.length && hasMoreOnServer) {
       loadMore(PAGE_SIZE);
     }
@@ -79,5 +89,49 @@ export function CommentList() {
         </button>
       )}
     </div>
+  );
+}
+
+function GlobalCommentList() {
+  const totalCount = useQuery(api.comments.count);
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.comments.list,
+    {},
+    { initialNumItems: PAGE_SIZE },
+  );
+
+  return (
+    <CommentListView
+      totalCount={totalCount}
+      results={results}
+      status={status}
+      loadMore={loadMore}
+    />
+  );
+}
+
+function PostCommentList({ postId }: { postId: Id<"posts"> }) {
+  const totalCount = useQuery(api.comments.countByPost, { postId });
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.comments.listByPost,
+    { postId },
+    { initialNumItems: PAGE_SIZE },
+  );
+
+  return (
+    <CommentListView
+      totalCount={totalCount}
+      results={results}
+      status={status}
+      loadMore={loadMore}
+    />
+  );
+}
+
+export function CommentList({ postId }: { postId?: Id<"posts"> }) {
+  return postId ? (
+    <PostCommentList postId={postId} />
+  ) : (
+    <GlobalCommentList />
   );
 }

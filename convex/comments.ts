@@ -5,6 +5,7 @@ import { mutation, query } from "./_generated/server";
 import { ensureCurrentUser } from "./lib/auth";
 import {
   countComments,
+  countCommentsByPost,
   normalizeCommentPage,
 } from "./lib/comments";
 import { isUsableDisplayName } from "./lib/displayName";
@@ -40,6 +41,7 @@ export const create = mutation({
       userId: user._id,
       author: displayName,
       content,
+      postId: args.postId,
     });
   },
 });
@@ -52,6 +54,17 @@ export const count = query({
   },
 });
 
+/** Total comments for a single post. */
+export const countByPost = query({
+  args: {
+    postId: v.id("posts"),
+  },
+  returns: v.number(),
+  handler: async (ctx, args): Promise<number> => {
+    return await countCommentsByPost(ctx, args.postId);
+  },
+});
+
 /** Newest comments first. */
 export const list = query({
   args: {
@@ -61,6 +74,27 @@ export const list = query({
   handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
     const result = await ctx.db
       .query("comments")
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    return {
+      ...result,
+      page: normalizeCommentPage(result.page),
+    };
+  },
+});
+
+/** Comments for a single post, newest first — uses the by_post index. */
+export const listByPost = query({
+  args: {
+    postId: v.id("posts"),
+    paginationOpts: paginationOptsValidator,
+  },
+  returns: paginatedCommentsValidator,
+  handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
+    const result = await ctx.db
+      .query("comments")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
       .order("desc")
       .paginate(args.paginationOpts);
 
