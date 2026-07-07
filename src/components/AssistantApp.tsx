@@ -14,6 +14,8 @@ function AssistantAppInner() {
     threadId,
     setThreadId,
     isCreatingThread,
+    isValidatingThreadAccess,
+    canUseThread,
     error,
     startNewThread,
     clearThread,
@@ -50,12 +52,15 @@ function AssistantAppInner() {
             {isCreatingThread && threadId === null && (
               <p className="text-sm text-gray-500">Starting chat…</p>
             )}
-            {!threadId && !isCreatingThread && (
+            {!threadId && !isCreatingThread && !isValidatingThreadAccess && (
               <p className="text-sm text-gray-500">
                 Select a conversation or start a new chat.
               </p>
             )}
-            {threadId && (
+            {isValidatingThreadAccess && (
+              <p className="text-sm text-gray-500">Loading conversation…</p>
+            )}
+            {canUseThread && threadId && (
               <AgentChatPanel
                 key={threadId}
                 threadId={threadId}

@@ -12,7 +12,13 @@ import NavLink from "./NavLink.astro";
   <nav
     class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3"
   >
-    <a href="/" class="text-lg font-semibold text-gray-900"> Astro Convex </a>
+    <a
+      href="/"
+      class="flex items-center gap-2.5 text-gray-900 transition-opacity hover:opacity-80"
+    >
+      <img src="/logo.svg" alt="" width="32" height="40" class="h-8 w-auto" />
+      <span class="text-lg font-semibold tracking-tight">PILKINGTON</span>
+    </a>
     <div class="flex flex-wrap items-center gap-2">
       <NavLink href="/" label="Blog" matchBlog />
       <NavLink href="/assistant" label="Assistant" matchPrefix />
