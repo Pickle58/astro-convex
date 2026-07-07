@@ -1,0 +1,4 @@
+# Convex CLI codegen (checked in). Force LF so Windows autocrlf
+# does not mark these as dirty after `npx convex dev`.
+**/_generated/** linguist-generated
+**/_generated/** text eol=lf
