@@ -2,6 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { withConvexProvider } from "../../lib/convex.tsx";
 import type { Post } from "../../lib/convex-types";
+import { coverImageClass } from "../../lib/ui";
 import { CommentsBody } from "../Comments";
 import { MarkdownContent } from "../MarkdownContent";
 
@@ -40,7 +41,7 @@ export default withConvexProvider(function PostDetail({
         <img
           src={post.coverImageUrl}
           alt=""
-          className="mb-6 h-64 w-full rounded-lg object-cover"
+          className={coverImageClass}
         />
       )}
 

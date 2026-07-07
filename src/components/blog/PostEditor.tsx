@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { withConvexProvider } from "../../lib/convex.tsx";
+import { coverImagePreviewClass } from "../../lib/ui";
 import { useEnsureUser } from "../CommentForm";
 import { useImageUpload } from "./useImageUpload";
 
@@ -359,7 +360,7 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
             <img
               src={coverImageUrl}
               alt="Cover preview"
-              className="h-12 w-20 rounded object-cover"
+              className={coverImagePreviewClass}
             />
             <button
               type="button"

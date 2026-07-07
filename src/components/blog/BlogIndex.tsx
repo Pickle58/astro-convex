@@ -2,6 +2,7 @@ import { Authenticated, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { withConvexProvider } from "../../lib/convex.tsx";
 import type { Post } from "../../lib/convex-types";
+import { coverImageCardClass } from "../../lib/ui";
 import { useEnsureUser } from "../CommentForm";
 
 const PAGE_SIZE = 10;
@@ -20,7 +21,7 @@ function PostCard({ post }: { post: Post }) {
         <img
           src={post.coverImageUrl}
           alt=""
-          className="h-48 w-full object-cover"
+          className={coverImageCardClass}
           loading="lazy"
         />
       )}
