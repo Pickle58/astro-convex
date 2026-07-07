@@ -2,7 +2,7 @@ import { paginationOptsValidator } from "convex/server";
 import { type Infer, v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
-import { ensureCurrentUser } from "./lib/auth";
+import { ensureCurrentUser, getCurrentUser } from "./lib/auth";
 import {
   countComments,
   countCommentsByPost,
@@ -138,7 +138,7 @@ export const listByCurrentUser = query({
   },
   returns: paginatedCommentsValidator,
   handler: async (ctx, args): Promise<Infer<typeof paginatedCommentsValidator>> => {
-    const user = await ensureCurrentUser(ctx);
+    const user = await getCurrentUser(ctx);
 
     const result = await ctx.db
       .query("comments")
