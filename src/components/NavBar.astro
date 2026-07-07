@@ -5,6 +5,7 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/astro/components";
+import NavLink from "./NavLink.astro";
 ---
 
 <header class="border-b border-gray-200 bg-white">
@@ -12,25 +13,10 @@ import {
     class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3"
   >
     <a href="/" class="text-lg font-semibold text-gray-900"> Astro Convex </a>
-    <div class="flex items-center gap-4">
-      <a
-        href="/"
-        class="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
-      >
-        Blog
-      </a>
-      <a
-        href="/assistant"
-        class="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
-      >
-        Assistant
-      </a>
-      <a
-        href="/about"
-        class="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
-      >
-        About
-      </a>
+    <div class="flex flex-wrap items-center gap-2">
+      <NavLink href="/" label="Blog" matchBlog />
+      <NavLink href="/assistant" label="Assistant" matchPrefix />
+      <NavLink href="/about" label="About" />
       <div class="flex items-center gap-3">
         <Show when="signed-out">
         <SignInButton mode="modal" asChild>

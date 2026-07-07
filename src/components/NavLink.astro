@@ -1,0 +1,32 @@
+---
+import { navLinkActiveClass, navLinkClass } from "../lib/ui.ts";
+
+interface Props {
+  href: string;
+  label: string;
+  /** Blog: active on `/` and `/blog/*` */
+  matchBlog?: boolean;
+  /** Active when pathname equals href or starts with `href/` */
+  matchPrefix?: boolean;
+}
+
+const { href, label, matchBlog = false, matchPrefix = false } = Astro.props;
+const path = Astro.url.pathname;
+
+let isActive = false;
+if (matchBlog) {
+  isActive = path === "/" || path.startsWith("/blog");
+} else if (matchPrefix) {
+  isActive = path === href || path.startsWith(href + "/");
+} else {
+  isActive = path === href;
+}
+---
+
+<a
+  href={href}
+  class:list={[navLinkClass, isActive && navLinkActiveClass]}
+  aria-current={isActive ? "page" : undefined}
+>
+  {label}
+</a>

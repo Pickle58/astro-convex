@@ -1,6 +1,7 @@
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { contentImageClass } from "../lib/ui";
 
 // Article-grade markdown renderer for blog post bodies. Distinct from the
 // compact chat renderer in AgentMessage so post typography can grow freely.
@@ -49,7 +50,7 @@ const articleComponents: Components = {
       <img
         src={src}
         alt={alt ?? ""}
-        className="my-4 h-auto max-w-full rounded-lg border border-gray-200"
+        className={contentImageClass}
         loading="lazy"
       />
     ) : null,
