@@ -88,8 +88,8 @@ Validators/types for post shapes: `postValidator` (public doc + resolved `coverI
 ### `convex/posts.ts` (new)
 
 - `generateUploadUrl` (mutation, auth) → `ctx.storage.generateUploadUrl()`.
-- `create` (mutation, auth): args `{ title, body, excerpt?, coverImageId?, status }`. Generates unique slug, sets `authorName`, `updatedAt`, `publishedAt` (if published). Returns `{ id, slug }`.
-- `update` (mutation, auth): args `{ postId, title?, body?, excerpt?, coverImageId?, status? }`. Author-only. Keeps slug stable. Sets `publishedAt` on first publish. Updates `updatedAt`.
+- `create` (mutation, auth): args `{ title, body, displayName, excerpt?, coverImageId?, status }`. Generates unique slug, sets `authorName` from `displayName`, `updatedAt`, `publishedAt` (if published). Returns `{ id, slug }`.
+- `update` (mutation, auth): args `{ postId, title?, body?, displayName?, excerpt?, coverImageId?, status? }`. Author-only. Keeps slug stable. Sets `publishedAt` on first publish. Updates `updatedAt`. Updates `authorName` when `displayName` is provided.
 - `remove` (mutation, auth): author-only delete.
 - `listPublished` (query, public): paginated published posts via `by_status_and_published`, newest first, with resolved `coverImageUrl`.
 - `listMyDrafts` (query, auth): current user's draft posts.

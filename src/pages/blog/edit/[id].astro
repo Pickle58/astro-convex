@@ -6,7 +6,10 @@ import Layout from "../../../layouts/Layout.astro";
 
 const { id } = Astro.params;
 
-if (!id) {
+// Convex IDs are alphanumeric (base32). Reject obviously malformed values
+// early so they don't reach the React island and cause a Convex validation
+// error that would crash the component tree.
+if (!id || !/^[a-z0-9]+$/i.test(id) || id.length < 10 || id.length > 64) {
   return Astro.redirect("/");
 }
 ---

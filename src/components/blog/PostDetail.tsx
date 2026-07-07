@@ -1,13 +1,9 @@
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { withConvexProvider } from "../../lib/convex.tsx";
-import type { Post } from "../../lib/convex-types";
+import { formatPostDate } from "../../lib/date";
 import { CommentsBody } from "../Comments";
 import { MarkdownContent } from "../MarkdownContent";
-
-function formatDate(post: Post): string {
-  return new Date(post.publishedAt ?? post._creationTime).toLocaleDateString();
-}
 
 export default withConvexProvider(function PostDetail({
   slug,
@@ -54,7 +50,7 @@ export default withConvexProvider(function PostDetail({
         <div className="mt-2 flex items-center gap-3 text-sm text-gray-500">
           <span>By {post.authorName}</span>
           <span aria-hidden>·</span>
-          <span>{formatDate(post)}</span>
+          <span>{formatPostDate(post)}</span>
           {post.isAuthor && (
             <a
               href={`/blog/edit/${post._id}`}

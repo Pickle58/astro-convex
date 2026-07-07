@@ -34,6 +34,7 @@ export default defineSchema({
   })
     .index("by_slug", ["slug"])
     .index("by_author", ["authorId"])
+    .index("by_author_and_status", ["authorId", "status"])
     .index("by_status_and_published", ["status", "publishedAt"]),
 
   commentSuggestions: defineTable({
