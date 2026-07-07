@@ -34,11 +34,11 @@ Large uploaded images can still dominate vertically (especially inline) because 
 
 | Approach | Pros | Cons |
 |----------|------|------|
-| **A. Shared CSS component classes in `global.css`** | One source of truth; works in Astro, React, and TipTap CSS; easy to tune | Slightly less “Tailwind-native” |
+| **A. Shared Tailwind strings in `src/lib/ui.ts`** | One source of truth; utilities scanned via `@source`; works in Astro + React | TipTap editor needs separate plain CSS in `global.css` |
 | **B. React `BlogImage` component only** | Typed props (variant: cover \| inline) | Does not cover TipTap editor or Astro without duplication |
 | **C. Repeat Tailwind in each file** | No new abstractions | Drifts immediately; already duplicated between MarkdownContent and `.tiptap img` |
 
-**Recommendation: A** — add `@layer components` classes in `global.css` and apply class names everywhere.
+**Recommendation: A (shipped)** — export class strings from `src/lib/ui.ts`; mirror inline limits in `.tiptap img` inside `global.css`.
 
 ### Navigation
 
@@ -48,86 +48,77 @@ Large uploaded images can still dominate vertically (especially inline) because 
 | **B. Inline classes on each `<a>`** | Minimal files | Active logic duplicated three times |
 | **C. React nav island** | Rich animations | SSR/auth complexity; overkill for three links |
 
-**Recommendation: A** — `NavLink.astro` with `href`, `label`, and optional `matchPrefix`.
+**Recommendation: A (shipped)** — `NavLink.astro` with `href`, `label`, optional `matchBlog` (blog routes) and `matchPrefix` (section routes).
 
 ## Design
 
-### Shared image classes (`src/styles/global.css`)
+### Shared image styling (`src/lib/ui.ts` + `global.css`)
 
-Add under `@layer components`:
+Export Tailwind class strings from `src/lib/ui.ts` and import them in React/Astro consumers. TipTap uses matching plain CSS on `.tiptap img` in `global.css` (editor cannot import TS modules).
 
-#### `.image-frame` (base)
+#### `coverImageClass` (post detail hero)
 
-Shared border, radius, shadow, and transition used by all variants:
+- `max-w-2xl max-h-56`, centered, `object-cover`
+- `rounded-xl border border-gray-200 shadow-lg`
 
-- `rounded-xl`
-- `border border-gray-200`
-- `shadow-md`
-- `transition-shadow duration-200`
-- Optional `hover:shadow-lg` on read surfaces only (not editor)
+#### `coverImageCardClass` (blog index thumbnails)
 
-#### `.cover-image` (post detail hero)
+- `h-48 w-full object-cover` (card wrapper keeps outer border/shadow)
 
-- Extends `.image-frame`
-- `w-full max-h-72` (288px cap — readable hero without dominating mobile)
-- `object-cover object-center`
-- `my-6`
+#### `contentImageClass` (inline markdown)
 
-Rationale: `max-h-72` keeps wide banners cropped nicely; taller uploads don’t push content below the fold.
-
-#### `.cover-image-card` (blog index thumbnails)
-
-- Extends `.image-frame` (border on image; card wrapper keeps existing card shadow)
-- `w-full h-48 object-cover` (keep current crop height)
-- Top corners only rounded if inside overflow-hidden card — apply `rounded-t-xl` when image is first child
-
-#### `.content-image` (inline markdown + editor)
-
-- Extends `.image-frame`
-- `max-w-full max-h-96` (384px height cap)
-- `w-auto h-auto object-contain`
-- `mx-auto block my-6` (centered when narrower than column)
-- `hover:shadow-lg` on read view only
-
-Rationale: `object-contain` preserves aspect ratio for tall screenshots; width still respects `max-w-3xl` column.
+- `max-w-lg max-h-72`, `object-contain`, centered
+- `rounded-xl border shadow-lg`, hover shadow/scale on read view
 
 #### Editor parity
 
-Update `.tiptap img` in `global.css` to use the same rules as `.content-image` (either duplicate the property block or apply class via TipTap `HTMLAttributes` — prefer matching CSS selectors `.tiptap img, .content-image` for one definition).
+`.tiptap img` in `global.css` mirrors `contentImageClass` limits with plain CSS (max-width 32rem, max-height 18rem, border, shadow).
 
 ### Files to touch (images)
 
 | File | Change |
 |------|--------|
-| `src/styles/global.css` | Add component classes; align `.tiptap img` |
-| `src/components/MarkdownContent.tsx` | `img` renderer → `className="content-image"` |
-| `src/components/blog/PostDetail.tsx` | Cover `<img>` → `className="cover-image"` |
-| `src/components/blog/BlogIndex.tsx` | Card cover `<img>` → `className="cover-image-card"` |
-| `src/components/blog/PostEditor.tsx` | Cover preview `<img>` → `cover-image` at smaller scale (optional `max-h-24` override for thumbnail preview only) |
+| `src/lib/ui.ts` | Export `coverImageClass`, `contentImageClass`, `coverImageCardClass`, `coverImagePreviewClass` |
+| `src/styles/global.css` | `@source` directive; `.tiptap img` editor styling |
+| `src/components/MarkdownContent.tsx` | `img` renderer → `contentImageClass` |
+| `src/components/blog/PostDetail.tsx` | Cover `<img>` → `coverImageClass` |
+| `src/components/blog/BlogIndex.tsx` | Card cover `<img>` → `coverImageCardClass` |
+| `src/components/blog/PostEditor.tsx` | Cover preview → `coverImagePreviewClass` |
 
 No upload-size limits on the backend — display-only constraints.
 
-### Navigation (`NavLink.astro`)
+### Navigation (`NavLink.astro` + `src/lib/ui.ts`)
 
-New component:
+New component importing nav styles from `ui.ts`:
 
 ```astro
 ---
+import { navLinkActiveClass, navLinkClass } from "../lib/ui.ts";
+
 interface Props {
   href: string;
   label: string;
-  /** When true, active if pathname starts with href (e.g. /blog). */
+  matchBlog?: boolean;
   matchPrefix?: boolean;
 }
-const { href, label, matchPrefix = false } = Astro.props;
+
+const { href, label, matchBlog = false, matchPrefix = false } = Astro.props;
 const path = Astro.url.pathname;
-const isActive = matchPrefix
-  ? path === href || path.startsWith(href + "/")
-  : path === href || (href !== "/" && path.startsWith(href));
+
+let isActive = false;
+if (matchBlog) {
+  isActive =
+    path === "/" || path === "/blog" || path.startsWith("/blog/");
+} else if (matchPrefix) {
+  isActive = path === href || path.startsWith(href + "/");
+} else {
+  isActive = path === href;
+}
 ---
+
 <a
   href={href}
-  class:list={["nav-link", { "nav-link-active": isActive }]}
+  class:list={[navLinkClass, isActive && navLinkActiveClass]}
   aria-current={isActive ? "page" : undefined}
 >
   {label}
@@ -138,30 +129,32 @@ const isActive = matchPrefix
 
 | Link | href | Active when |
 |------|------|-------------|
-| Blog | `/` | `pathname === '/'` OR `pathname.startsWith('/blog')` |
+| Blog | `/` | `pathname === '/'`, `pathname === '/blog'`, or `pathname.startsWith('/blog/')` |
 | Assistant | `/assistant` | prefix match |
 | About | `/about` | exact match |
 
-Blog uses `matchPrefix` with special case for `/` + `/blog/*` (implement in component logic).
+Blog uses `matchBlog` (not prefix-only) so `/blog/*` routes highlight Blog without matching unrelated `/blog…` paths.
 
-#### `.nav-link` styles (`global.css`)
+#### `navLinkClass` / `navLinkActiveClass` (`src/lib/ui.ts`)
 
 Pill button matching existing indigo accent:
 
-```
-inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5
-text-sm font-medium text-gray-600 shadow-sm
-transition-all duration-200 ease-out
-hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-md
-active:translate-y-0 active:shadow-sm
+```css
+/* navLinkClass — Tailwind utilities in ui.ts */
+inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2
+text-sm font-medium text-gray-700 shadow-sm
+transition-all duration-300 ease-out
+hover:-translate-y-1 hover:scale-[1.02] hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-lg
+active:translate-y-0 active:scale-100
 ```
 
-#### `.nav-link-active`
+#### `navLinkActiveClass`
 
 Distinct resting state (not only hover):
 
-```
-border-indigo-400 bg-indigo-50 text-indigo-800 shadow-sm
+```css
+/* navLinkActiveClass — Tailwind utilities in ui.ts */
+border-indigo-500 bg-indigo-100 text-indigo-800 shadow-md ring-2 ring-indigo-200/80
 ```
 
 No translate on active link (avoid “floating” current page).
@@ -187,9 +180,9 @@ Keep site title link and Clerk buttons unchanged (Sign up already indigo-filled;
 
 ## Testing (manual)
 
-1. **Cover — detail:** Upload a very wide and a very tall cover; confirm max height ~288px, border + shadow visible.
-2. **Cover — index:** Card thumbnail still `h-48` crop with framed image.
-3. **Inline:** Insert a tall screenshot in a post; confirm max-height ~384px, centered, border + shadow.
+1. **Cover — detail:** Upload a very wide and a very tall cover; confirm max height ~224px (`max-h-56`), max width ~672px (`max-w-2xl`), border + shadow visible.
+2. **Cover — index:** Card thumbnail still `h-48` crop.
+3. **Inline:** Insert a tall screenshot in a post; confirm max-height ~288px (`max-h-72`), max-width ~512px (`max-w-lg`), centered, border + shadow.
 4. **Editor:** Insert inline image in TipTap; preview matches read styling.
 5. **Nav:** Hover each link — slight lift, indigo tint, shadow increase. On `/`, Blog active; on `/blog/new`, Blog active; on `/assistant`, Assistant active.
 6. **Mobile:** Nav wraps without overflow; touch targets ≥44px height (py-1.5 + text may need `py-2` on small screens if audit fails).

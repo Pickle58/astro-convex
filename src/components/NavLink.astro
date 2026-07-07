@@ -15,7 +15,8 @@ const path = Astro.url.pathname;
 
 let isActive = false;
 if (matchBlog) {
-  isActive = path === "/" || path.startsWith("/blog");
+  isActive =
+    path === "/" || path === "/blog" || path.startsWith("/blog/");
 } else if (matchPrefix) {
   isActive = path === href || path.startsWith(href + "/");
 } else {
