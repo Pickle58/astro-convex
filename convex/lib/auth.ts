@@ -3,7 +3,7 @@ import type { MutationCtx, QueryCtx } from "../_generated/server";
 import { isUsableDisplayName, normalizeDisplayName } from "./displayName";
 
 export async function ensureCurrentUser(
-  ctx: QueryCtx | MutationCtx,
+  ctx: MutationCtx,
 ): Promise<Doc<"users">> {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
