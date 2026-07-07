@@ -2,6 +2,7 @@ import { usePaginatedQuery, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { secondaryButtonClass } from "../lib/ui";
 import type { Comment } from "../lib/convex-types";
 
 const PAGE_SIZE = 10;
@@ -28,11 +29,11 @@ function CommentListView({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   if (status === "LoadingFirstPage") {
-    return <p className="py-4 text-center text-gray-500">Loading comments...</p>;
+    return <p className="py-4 text-center text-text-muted">Loading comments...</p>;
   }
 
   if (results.length === 0) {
-    return <p className="py-4 text-center text-gray-500">No comments yet.</p>;
+    return <p className="py-4 text-center text-text-muted">No comments yet.</p>;
   }
 
   const visibleResults = results.slice(0, visibleCount);
@@ -52,7 +53,7 @@ function CommentListView({
   return (
     <div className="space-y-6">
       {totalCount !== undefined && totalCount > PAGE_SIZE && (
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-text-muted">
           Showing {visibleResults.length} of {totalCount} comments
         </p>
       )}
@@ -60,17 +61,15 @@ function CommentListView({
       {visibleResults.map((comment: Comment) => (
         <article
           key={comment._id}
-          className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm"
+          className="rounded-lg border border-border bg-surface-muted p-4 shadow-sm"
         >
           <header className="mb-2 flex items-center justify-between">
-            <strong className="font-medium text-gray-900">
-              {comment.author}
-            </strong>
-            <span className="text-sm text-gray-500">
+            <strong className="font-medium text-text">{comment.author}</strong>
+            <span className="text-sm text-text-muted">
               {new Date(comment._creationTime).toLocaleDateString()}
             </span>
           </header>
-          <main className="leading-relaxed text-gray-700">
+          <main className="leading-relaxed text-text">
             <p className="whitespace-pre-line">{comment.content}</p>
           </main>
         </article>
@@ -81,7 +80,7 @@ function CommentListView({
           type="button"
           onClick={handleLoadMore}
           disabled={status === "LoadingMore"}
-          className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className={`w-full ${secondaryButtonClass}`}
         >
           {status === "LoadingMore"
             ? "Loading more comments..."

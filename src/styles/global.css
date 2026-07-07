@@ -2,11 +2,42 @@
 
 @source "../**/*.{astro,tsx,ts,jsx,js}";
 
-/* Add your theme customizations here. */
-/* See the TailwindCSS v4 docs for more info: https://tailwindcss.com/docs/v4-beta#css-configuration-in-depth */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
 
 @theme {
   --font-display: "Inter", sans-serif;
+
+  --color-primary: #5b52e8;
+  --color-primary-muted: #eeeaff;
+  --color-primary-border: #c4b5fd;
+  --color-accent: #c2410c;
+  --color-accent-hover: #9a3412;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f6ff;
+  --color-border: #e4e2f0;
+  --color-text: #1e1b4b;
+  --color-text-muted: #5b5878;
+}
+
+.dark {
+  --color-primary: #8b83ff;
+  --color-primary-muted: #2a2450;
+  --color-primary-border: #4c4580;
+  --color-accent: #ea580c;
+  --color-accent-hover: #fb923c;
+  --color-surface: #12101f;
+  --color-surface-muted: #1c1830;
+  --color-border: #2e2850;
+  --color-text: #f3f1ff;
+  --color-text-muted: #a8a3c4;
 }
 
 /* TipTap editor content styling (Tailwind resets these element defaults). */
@@ -50,15 +81,15 @@
 }
 
 .tiptap blockquote {
-  border-left: 3px solid #c7d2fe;
+  border-left: 3px solid var(--color-primary-border);
   padding-left: 0.75rem;
-  color: #4b5563;
+  color: var(--color-text-muted);
   font-style: italic;
   margin: 0.75rem 0;
 }
 
 .tiptap pre {
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
   border-radius: 0.5rem;
   padding: 0.75rem;
   overflow-x: auto;
@@ -68,7 +99,7 @@
 }
 
 .tiptap code {
-  background: #f3f4f6;
+  background: var(--color-surface-muted);
   border-radius: 0.25rem;
   padding: 0.1rem 0.3rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -89,7 +120,7 @@
   max-height: 18rem;
   height: auto;
   border-radius: 0.75rem;
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border: 1px solid var(--color-border);
   object-fit: contain;
   box-shadow:
     0 10px 15px -3px rgb(0 0 0 / 0.1),
@@ -107,14 +138,14 @@
 }
 
 .tiptap a {
-  color: #4f46e5;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
 /* Placeholder text for the empty editor. */
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  color: #9ca3af;
+  color: var(--color-text-muted);
   float: left;
   height: 0;
   pointer-events: none;

@@ -2,7 +2,12 @@ import { Authenticated, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { withConvexProvider } from "../../lib/convex.tsx";
 import type { Post } from "../../lib/convex-types";
-import { coverImageCardClass } from "../../lib/ui";
+import {
+  accentButtonClass,
+  coverImageCardClass,
+  linkClass,
+  secondaryButtonClass,
+} from "../../lib/ui";
 import { useEnsureUser } from "../CommentForm";
 
 const PAGE_SIZE = 10;
@@ -15,7 +20,7 @@ function PostCard({ post }: { post: Post }) {
   return (
     <a
       href={`/blog/${post.slug}`}
-      className="block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+      className="block overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-shadow hover:shadow-md"
     >
       {post.coverImageUrl && (
         <img
@@ -26,14 +31,12 @@ function PostCard({ post }: { post: Post }) {
         />
       )}
       <div className="p-5">
-        <h2 className="mb-1 text-xl font-semibold text-gray-900">
-          {post.title}
-        </h2>
-        <p className="mb-3 text-sm text-gray-500">
+        <h2 className="mb-1 text-xl font-semibold text-text">{post.title}</h2>
+        <p className="mb-3 text-sm text-text-muted">
           By {post.authorName} · {formatDate(post)}
         </p>
         {post.excerpt && (
-          <p className="line-clamp-3 text-gray-700">{post.excerpt}</p>
+          <p className="line-clamp-3 text-text">{post.excerpt}</p>
         )}
       </div>
     </a>
@@ -56,12 +59,12 @@ function DraftsSection() {
             key={draft._id}
             className="flex items-center justify-between gap-4"
           >
-            <span className="truncate text-gray-800">
+            <span className="truncate text-text">
               {draft.title || "Untitled draft"}
             </span>
             <a
               href={`/blog/edit/${draft._id}`}
-              className="shrink-0 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+              className={`shrink-0 text-sm ${linkClass}`}
             >
               Continue editing
             </a>
@@ -84,16 +87,13 @@ export default withConvexProvider(function BlogIndex() {
     <div>
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Blog</h1>
-          <p className="mt-1 text-gray-600">
+          <h1 className="text-3xl font-bold text-text">Blog</h1>
+          <p className="mt-1 text-text-muted">
             Posts from the community. Sign in to write your own.
           </p>
         </div>
         <Authenticated>
-          <a
-            href="/blog/new"
-            className="shrink-0 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-          >
+          <a href="/blog/new" className={`shrink-0 ${accentButtonClass}`}>
             New post
           </a>
         </Authenticated>
@@ -104,9 +104,9 @@ export default withConvexProvider(function BlogIndex() {
       </Authenticated>
 
       {status === "LoadingFirstPage" ? (
-        <p className="py-8 text-center text-gray-500">Loading posts…</p>
+        <p className="py-8 text-center text-text-muted">Loading posts…</p>
       ) : results.length === 0 ? (
-        <p className="py-8 text-center text-gray-500">
+        <p className="py-8 text-center text-text-muted">
           No posts yet. Be the first to publish one.
         </p>
       ) : (
@@ -118,13 +118,13 @@ export default withConvexProvider(function BlogIndex() {
             <button
               type="button"
               onClick={() => loadMore(PAGE_SIZE)}
-              className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              className={`w-full ${secondaryButtonClass}`}
             >
               Load more posts
             </button>
           )}
           {status === "LoadingMore" && (
-            <p className="py-4 text-center text-gray-500">Loading more…</p>
+            <p className="py-4 text-center text-text-muted">Loading more…</p>
           )}
         </div>
       )}
