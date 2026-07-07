@@ -5,8 +5,15 @@ import { AgentChatPanel } from "./agent/AgentChatPanel";
 
 export function CommentAgentChat() {
   const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
-  const { threadId, isCreatingThread, error, startNewThread, clearThread } =
-    useAgentThreads({ context: "coach", storageKey: "commentCoachThreadId" });
+  const {
+    threadId,
+    isCreatingThread,
+    isValidatingThreadAccess,
+    canUseThread,
+    error,
+    startNewThread,
+    clearThread,
+  } = useAgentThreads({ context: "coach", storageKey: "commentCoachThreadId" });
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
@@ -45,7 +52,10 @@ export function CommentAgentChat() {
         {isCreatingThread && threadId === null && (
           <p className="text-sm text-gray-500">Starting chat…</p>
         )}
-        {threadId && (
+        {isValidatingThreadAccess && (
+          <p className="text-sm text-gray-500">Loading conversation…</p>
+        )}
+        {canUseThread && threadId && (
           <AgentChatPanel
             key={threadId}
             threadId={threadId}

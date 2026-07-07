@@ -44,6 +44,26 @@ export const listThreads = query({
   },
 });
 
+export const hasThreadAccess = query({
+  args: { threadId: v.string() },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    const userId = await getAgentUserId(ctx);
+    if (!userId) {
+      return false;
+    }
+
+    try {
+      const { userId: threadUserId } = await getThreadMetadata(ctx, components.agent, {
+        threadId: args.threadId,
+      });
+      return threadUserId === userId;
+    } catch {
+      return false;
+    }
+  },
+});
+
 export const createNewThread = mutation({
   args: {
     title: v.optional(v.string()),

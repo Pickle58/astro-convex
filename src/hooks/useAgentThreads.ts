@@ -73,6 +73,35 @@ export function useAgentThreads({ context, storageKey }: UseAgentThreadsOptions)
       : "skip",
   );
 
+  const threadAccess = useQuery(
+    api.chat.threads.hasThreadAccess,
+    canUseConvex && threadId ? { threadId } : "skip",
+  );
+
+  const isValidatingThreadAccess = threadId !== null && threadAccess === undefined;
+  const canUseThread = threadId !== null && threadAccess === true;
+
+  const clearThread = useCallback(() => {
+    setThreadIdState(null);
+    isEnsuringRef.current = false;
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(storageKey);
+      if (window.location.hash) {
+        history.replaceState(
+          null,
+          "",
+          window.location.pathname + window.location.search,
+        );
+      }
+    }
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (threadAccess === false) {
+      clearThread();
+    }
+  }, [threadAccess, clearThread]);
+
   useEffect(() => {
     const onHashChange = () => {
       const id = readThreadIdFromHash(context);
@@ -188,25 +217,12 @@ export function useAgentThreads({ context, storageKey }: UseAgentThreadsOptions)
     }
   }, [createThread, setThreadId, context]);
 
-  const clearThread = useCallback(() => {
-    setThreadIdState(null);
-    isEnsuringRef.current = false;
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(storageKey);
-      if (window.location.hash) {
-        history.replaceState(
-          null,
-          "",
-          window.location.pathname + window.location.search,
-        );
-      }
-    }
-  }, [storageKey]);
-
   return {
     threadId,
     setThreadId,
     isCreatingThread,
+    isValidatingThreadAccess,
+    canUseThread,
     error,
     startNewThread,
     clearThread,
