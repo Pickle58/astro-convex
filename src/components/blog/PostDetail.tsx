@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { withConvexProvider } from "../../lib/convex.tsx";
 import type { Post } from "../../lib/convex-types";
-import { coverImageClass } from "../../lib/ui";
+import { coverImageClass, linkClass } from "../../lib/ui";
 import { CommentsBody } from "../Comments";
 import { MarkdownContent } from "../MarkdownContent";
 
@@ -18,17 +18,17 @@ export default withConvexProvider(function PostDetail({
   const post = useQuery(api.posts.getBySlug, { slug });
 
   if (post === undefined) {
-    return <p className="py-12 text-center text-gray-500">Loading post…</p>;
+    return <p className="py-12 text-center text-text-muted">Loading post…</p>;
   }
 
   if (post === null) {
     return (
       <div className="py-12 text-center">
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">Post not found</h1>
-        <p className="mb-4 text-gray-600">
+        <h1 className="mb-2 text-2xl font-bold text-text">Post not found</h1>
+        <p className="mb-4 text-text-muted">
           This post may have been removed or is still a draft.
         </p>
-        <a href="/" className="font-medium text-indigo-600 hover:text-indigo-800">
+        <a href="/" className={linkClass}>
           Back to the blog
         </a>
       </div>
@@ -51,16 +51,13 @@ export default withConvexProvider(function PostDetail({
             Draft
           </span>
         )}
-        <h1 className="text-4xl font-bold text-gray-900">{post.title}</h1>
-        <div className="mt-2 flex items-center gap-3 text-sm text-gray-500">
+        <h1 className="text-4xl font-bold text-text">{post.title}</h1>
+        <div className="mt-2 flex items-center gap-3 text-sm text-text-muted">
           <span>By {post.authorName}</span>
           <span aria-hidden>·</span>
           <span>{formatDate(post)}</span>
           {post.isAuthor && (
-            <a
-              href={`/blog/edit/${post._id}`}
-              className="font-medium text-indigo-600 hover:text-indigo-800"
-            >
+            <a href={`/blog/edit/${post._id}`} className={linkClass}>
               Edit
             </a>
           )}
@@ -69,8 +66,8 @@ export default withConvexProvider(function PostDetail({
 
       <MarkdownContent markdown={post.body} />
 
-      <section className="mt-12 border-t border-gray-200 pt-8">
-        <h2 className="mb-6 text-2xl font-bold text-gray-900">Comments</h2>
+      <section className="mt-12 border-t border-border pt-8">
+        <h2 className="mb-6 text-2xl font-bold text-text">Comments</h2>
         <CommentsBody postId={post._id} />
       </section>
     </article>

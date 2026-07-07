@@ -2,6 +2,7 @@ import type { Components } from "react-markdown";
 import type { UIMessage } from "@convex-dev/agent/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { linkClass } from "../../lib/ui";
 
 const markdownComponents: Components = {
   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -17,7 +18,7 @@ const markdownComponents: Components = {
   a: ({ href, children }) => (
     <a
       href={href}
-      className="text-indigo-600 underline hover:text-indigo-800"
+      className={linkClass}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -28,13 +29,13 @@ const markdownComponents: Components = {
     const isBlock = className?.includes("language-");
     if (isBlock) {
       return (
-        <code className="my-2 block overflow-x-auto rounded bg-gray-200/80 p-2 font-mono text-xs">
+        <code className="my-2 block overflow-x-auto rounded bg-surface-muted p-2 font-mono text-xs">
           {children}
         </code>
       );
     }
     return (
-      <code className="rounded bg-gray-200/80 px-1 py-0.5 font-mono text-xs">
+      <code className="rounded bg-surface-muted px-1 py-0.5 font-mono text-xs">
         {children}
       </code>
     );
@@ -50,7 +51,7 @@ const markdownComponents: Components = {
     <p className="mb-1 text-sm font-semibold last:mb-0">{children}</p>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="my-2 border-l-2 border-gray-300 pl-3 text-gray-600 last:mb-0">
+    <blockquote className="my-2 border-l-2 border-primary-border pl-3 text-text-muted last:mb-0">
       {children}
     </blockquote>
   ),
@@ -66,8 +67,8 @@ export function AgentMessage({ message }: { message: UIMessage }) {
       <div
         className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
           isUser
-            ? "bg-indigo-600 whitespace-pre-wrap text-white"
-            : "border border-gray-200 bg-gray-50 text-gray-800"
+            ? "bg-primary whitespace-pre-wrap text-white"
+            : "border border-border bg-surface-muted text-text"
         }`}
       >
         {isUser ? (
@@ -80,7 +81,7 @@ export function AgentMessage({ message }: { message: UIMessage }) {
           </ReactMarkdown>
         )}
         {isStreaming && message.text && (
-          <span className="ml-0.5 inline-block animate-pulse text-indigo-400">▍</span>
+          <span className="ml-0.5 inline-block animate-pulse text-primary/60">▍</span>
         )}
       </div>
     </div>

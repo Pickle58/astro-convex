@@ -5,6 +5,7 @@ import {
 import { useMutation } from "convex/react";
 import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
+import { accentButtonClass, inputClass, linkClass } from "../../lib/ui";
 import { AgentMessage } from "./AgentMessage";
 import type { ThreadContext } from "./types";
 
@@ -59,13 +60,13 @@ export function AgentChatPanel({
   return (
     <div className={className ?? "flex flex-col gap-3"}>
       <div
-        className={`space-y-3 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 ${messagesClassName}`}
+        className={`space-y-3 overflow-y-auto rounded-lg border border-border bg-surface p-4 ${messagesClassName}`}
       >
         {status === "LoadingFirstPage" && (
-          <p className="text-sm text-gray-500">Loading messages…</p>
+          <p className="text-sm text-text-muted">Loading messages…</p>
         )}
         {status !== "LoadingFirstPage" && (results?.length ?? 0) === 0 && (
-          <p className="text-sm text-gray-500">{emptyStateMessage}</p>
+          <p className="text-sm text-text-muted">{emptyStateMessage}</p>
         )}
         {results?.map((message) => (
           <AgentMessage key={message.key} message={message} />
@@ -76,7 +77,7 @@ export function AgentChatPanel({
         <button
           type="button"
           onClick={() => loadMore(20)}
-          className="self-start text-sm text-indigo-600 hover:text-indigo-800"
+          className={`self-start text-sm ${linkClass}`}
         >
           Load older messages
         </button>
@@ -98,12 +99,12 @@ export function AgentChatPanel({
             }
           }}
           placeholder={inputPlaceholder}
-          className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          className={`min-w-0 flex-1 ${inputClass} text-sm`}
         />
         <button
           type="submit"
           disabled={!canSend}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className={accentButtonClass}
         >
           Send
         </button>

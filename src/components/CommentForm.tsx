@@ -4,6 +4,13 @@ import { type FormEvent, useEffect, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { getUtcDayStart } from "../../convex/lib/utcDayStart";
+import {
+  accentButtonClass,
+  inputClass,
+  linkClass,
+  panelHighlightClass,
+  secondaryButtonClass,
+} from "../lib/ui";
 
 export function CommentForm({ postId }: { postId?: Id<"posts"> }) {
   const createComment = useMutation(api.comments.create);
@@ -103,7 +110,7 @@ export function CommentForm({ postId }: { postId?: Id<"posts"> }) {
   return (
     <>
       <Unauthenticated>
-        <p className="mb-8 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-gray-600">
+        <p className="mb-8 rounded-lg border border-dashed border-border bg-surface-muted px-4 py-6 text-center text-text-muted">
           Sign in to post a comment.
         </p>
       </Unauthenticated>
@@ -116,32 +123,32 @@ export function CommentForm({ postId }: { postId?: Id<"posts"> }) {
             placeholder="Please enter your name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className={inputClass}
           />
           <textarea
             placeholder="Leave a comment..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="min-h-[100px] w-full resize-y rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className={`min-h-[100px] resize-y ${inputClass}`}
           />
           {pendingSuggestion && (
-            <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 text-sm">
-              <p className="mb-2 font-medium text-gray-700">Suggested edit</p>
-              <p className="mb-3 whitespace-pre-wrap text-gray-800">
+            <div className={`${panelHighlightClass} text-sm !p-3`}>
+              <p className="mb-2 font-medium text-text">Suggested edit</p>
+              <p className="mb-3 whitespace-pre-wrap text-text">
                 {pendingSuggestion}
               </p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                   type="button"
                   onClick={handleUseSuggestion}
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+                  className={`px-3 py-1.5 text-sm ${accentButtonClass}`}
                 >
                   Use suggestion
                 </button>
                 <button
                   type="button"
                   onClick={handleDismissSuggestion}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+                  className={`px-3 py-1.5 text-sm ${secondaryButtonClass}`}
                 >
                   Dismiss
                 </button>
@@ -153,14 +160,14 @@ export function CommentForm({ postId }: { postId?: Id<"posts"> }) {
               <button
                 type="button"
                 onClick={handleRevert}
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 focus:underline focus:outline-none"
+                className={`text-sm ${linkClass}`}
               >
                 Revert to original draft
               </button>
             </div>
           )}
           {quota && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-text-muted">
               {quota.remaining > 0
                 ? `${quota.remaining} AI suggestion${quota.remaining === 1 ? "" : "s"} remaining today`
                 : "Daily AI suggestion limit reached. Try again tomorrow."}
@@ -171,14 +178,14 @@ export function CommentForm({ postId }: { postId?: Id<"posts"> }) {
               type="button"
               onClick={() => void handleSuggest()}
               disabled={suggestDisabled}
-              className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className={`w-full sm:w-auto ${secondaryButtonClass}`}
             >
               {isSuggesting ? "Suggesting…" : "Suggest edit"}
             </button>
             <button
               type="submit"
               disabled={isSuggesting}
-              className="w-full rounded-md bg-indigo-600 px-4 py-2 text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className={`w-full sm:w-auto ${accentButtonClass}`}
             >
               Post Comment
             </button>

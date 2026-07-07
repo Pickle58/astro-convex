@@ -17,8 +17,19 @@ const { title = "Astro Convex" } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (_) {
+          /* localStorage unavailable */
+        }
+      })();
+    </script>
   </head>
-  <body class="min-h-screen bg-white text-gray-900">
+  <body class="min-h-screen bg-surface text-text">
     <NavBar />
     <slot />
   </body>

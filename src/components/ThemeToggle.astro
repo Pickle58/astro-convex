@@ -1,0 +1,84 @@
+---
+import { themeToggleClass } from "../lib/ui.ts";
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class={themeToggleClass}
+  aria-label="Switch to dark theme"
+>
+  <svg
+    class="h-5 w-5 dark:hidden"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+  <svg
+    class="hidden h-5 w-5 dark:block"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M12 3v1.5M12 19.5V21M4.22 4.22l1.06 1.06M18.72 18.72l1.06 1.06M3 12h1.5M19.5 12H21M4.22 19.78l1.06-1.06M18.72 5.28l1.06-1.06M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z"
+    ></path>
+  </svg>
+</button>
+
+<script>
+  import { applyTheme, toggleTheme } from "../lib/theme.ts";
+
+  function syncToggleLabel(): void {
+    const button = document.getElementById("theme-toggle");
+    if (!button) {
+      return;
+    }
+    const isDark = document.documentElement.classList.contains("dark");
+    button.setAttribute(
+      "aria-label",
+      isDark ? "Switch to light theme" : "Switch to dark theme",
+    );
+  }
+
+  function initThemeToggle(): void {
+    const button = document.getElementById("theme-toggle");
+    if (!button || button.dataset.bound === "true") {
+      syncToggleLabel();
+      return;
+    }
+
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      toggleTheme();
+      syncToggleLabel();
+    });
+    syncToggleLabel();
+  }
+
+  initThemeToggle();
+  document.addEventListener("astro:page-load", initThemeToggle);
+
+  // Keep label in sync if theme changes elsewhere.
+  window.addEventListener("storage", (event) => {
+    if (event.key !== "theme") {
+      return;
+    }
+    const theme = event.newValue;
+    if (theme === "light" || theme === "dark") {
+      applyTheme(theme);
+      syncToggleLabel();
+    }
+  });
+</script>

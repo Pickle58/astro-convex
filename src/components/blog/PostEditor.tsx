@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { withConvexProvider } from "../../lib/convex.tsx";
-import { coverImagePreviewClass } from "../../lib/ui";
+import { coverImagePreviewClass, accentButtonClass, ghostButtonClass, inputClass, linkClass, secondaryButtonClass } from "../../lib/ui";
 import { useEnsureUser } from "../CommentForm";
 import { useImageUpload } from "./useImageUpload";
 
@@ -32,8 +32,8 @@ function ToolbarButton({
       onClick={onClick}
       className={`rounded px-2 py-1 text-sm font-medium transition-colors ${
         active
-          ? "bg-indigo-600 text-white"
-          : "bg-white text-gray-700 hover:bg-gray-100"
+          ? "bg-primary text-white"
+          : "bg-surface text-text hover:bg-surface-muted"
       }`}
     >
       {label}
@@ -49,7 +49,7 @@ function EditorToolbar({
   onInsertImage: () => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-1 border-b border-gray-200 bg-gray-50 p-2">
+    <div className="flex flex-wrap gap-1 border-b border-border bg-surface-muted p-2">
       <ToolbarButton
         label="B"
         title="Bold"
@@ -295,19 +295,19 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
   };
 
   if (postId && existing === undefined) {
-    return <p className="py-12 text-center text-gray-500">Loading editor…</p>;
+    return <p className="py-12 text-center text-text-muted">Loading editor…</p>;
   }
 
   if (postId && existing === null) {
     return (
       <div className="py-12 text-center">
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
+        <h1 className="mb-2 text-2xl font-bold text-text">
           Post unavailable
         </h1>
-        <p className="mb-4 text-gray-600">
+        <p className="mb-4 text-text-muted">
           This post does not exist or you are not its author.
         </p>
-        <a href="/" className="font-medium text-indigo-600 hover:text-indigo-800">
+        <a href="/" className={linkClass}>
           Back to the blog
         </a>
       </div>
@@ -316,7 +316,7 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">
+      <h1 className="text-2xl font-bold text-text">
         {postId ? "Edit post" : "New post"}
       </h1>
 
@@ -325,7 +325,7 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
         placeholder="Post title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg font-semibold shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        className={`${inputClass} text-lg font-semibold`}
       />
 
       <input
@@ -336,14 +336,14 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
           nameTouchedRef.current = true;
           setDisplayName(e.target.value);
         }}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        className={inputClass}
       />
 
       <textarea
         placeholder="Short excerpt (optional, shown on the blog index)"
         value={excerpt}
         onChange={(e) => setExcerpt(e.target.value)}
-        className="min-h-[60px] w-full resize-y rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        className={`min-h-[60px] resize-y ${inputClass} text-sm`}
       />
 
       <div className="flex items-center gap-3">
@@ -351,7 +351,7 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
           type="button"
           onClick={() => coverInputRef.current?.click()}
           disabled={isUploadingCover}
-          className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-60"
+          className={`px-3 py-1.5 text-sm ${secondaryButtonClass}`}
         >
           {isUploadingCover ? "Uploading…" : "Upload cover image"}
         </button>
@@ -376,7 +376,7 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-md border border-gray-300">
+      <div className="overflow-hidden rounded-md border border-border">
         {editor && (
           <EditorToolbar editor={editor} onInsertImage={insertImage} />
         )}
@@ -390,7 +390,7 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
           type="button"
           onClick={() => void handleSave("published")}
           disabled={isSaving}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className={accentButtonClass}
         >
           {isSaving ? "Saving…" : "Publish"}
         </button>
@@ -398,13 +398,13 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
           type="button"
           onClick={() => void handleSave("draft")}
           disabled={isSaving}
-          className="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className={secondaryButtonClass}
         >
           Save draft
         </button>
         <a
           href="/"
-          className="rounded-md px-4 py-2 text-center font-medium text-gray-600 transition-colors hover:text-gray-900"
+          className={`text-center ${ghostButtonClass}`}
         >
           Cancel
         </a>
@@ -439,7 +439,7 @@ export default withConvexProvider(function PostEditor({
   return (
     <>
       <Unauthenticated>
-        <p className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-gray-600">
+        <p className="rounded-lg border border-dashed border-border bg-surface-muted px-4 py-6 text-center text-text-muted">
           Please sign in to write a post.
         </p>
       </Unauthenticated>

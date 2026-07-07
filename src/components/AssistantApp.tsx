@@ -30,17 +30,17 @@ function AssistantAppInner() {
   return (
     <AgentChatErrorBoundary label="Assistant">
       <Unauthenticated>
-        <p className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center text-gray-600">
+        <p className="rounded-lg border border-dashed border-border bg-surface-muted px-4 py-8 text-center text-text-muted">
           Sign in to use the assistant.
         </p>
       </Unauthenticated>
 
       <Authenticated>
         {isAuthLoading && (
-          <p className="text-sm text-gray-500">Checking sign-in…</p>
+          <p className="text-sm text-text-muted">Checking sign-in…</p>
         )}
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-        <div className="flex min-h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white md:flex-row">
+        <div className="flex min-h-[calc(100vh-8rem)] flex-col overflow-hidden rounded-xl border border-border bg-surface md:flex-row">
           <ThreadSidebar
             context="assistant"
             activeThreadId={threadId}
@@ -50,15 +50,15 @@ function AssistantAppInner() {
           />
           <main className="flex min-h-0 flex-1 flex-col p-4">
             {isCreatingThread && threadId === null && (
-              <p className="text-sm text-gray-500">Starting chat…</p>
+              <p className="text-sm text-text-muted">Starting chat…</p>
             )}
             {!threadId && !isCreatingThread && !isValidatingThreadAccess && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-text-muted">
                 Select a conversation or start a new chat.
               </p>
             )}
             {isValidatingThreadAccess && (
-              <p className="text-sm text-gray-500">Loading conversation…</p>
+              <p className="text-sm text-text-muted">Loading conversation…</p>
             )}
             {canUseThread && threadId && (
               <AgentChatPanel
