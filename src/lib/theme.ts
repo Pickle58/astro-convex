@@ -8,12 +8,20 @@ export function isTheme(value: string | null): value is Theme {
 
 export function applyTheme(theme: Theme): void {
   document.documentElement.classList.toggle("dark", theme === "dark");
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    /* localStorage unavailable (e.g. private browsing, disabled storage) */
+  }
 }
 
 export function getStoredTheme(): Theme | null {
-  const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  return isTheme(stored) ? stored : null;
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return isTheme(stored) ? stored : null;
+  } catch {
+    return null;
+  }
 }
 
 export function getPreferredTheme(): Theme {

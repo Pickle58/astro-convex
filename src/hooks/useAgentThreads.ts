@@ -98,6 +98,7 @@ export function useAgentThreads({ context, storageKey }: UseAgentThreadsOptions)
 
   useEffect(() => {
     if (threadAccess === false) {
+      setError("This conversation is no longer available.");
       clearThread();
     }
   }, [threadAccess, clearThread]);

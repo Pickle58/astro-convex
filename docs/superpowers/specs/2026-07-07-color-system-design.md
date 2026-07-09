@@ -4,9 +4,9 @@ Status: Approved for implementation (2026-07-07)
 
 ## Summary
 
-Replace the default indigo/gray palette with a blueish-violet brand system and dark-orange accents. Colors live in Tailwind v4 `@theme` tokens with `.dark` pairs prepared for a future light/dark/system toggle. Shared class helpers in `src/lib/ui.ts` compose semantic utilities for repeated patterns.
+Replace the default indigo/gray palette with a blueish-violet brand system and dark-orange accents. Colors live in Tailwind v4 `@theme` tokens with `.dark` pairs for light/dark mode. Shared class helpers in `src/lib/ui.ts` compose semantic utilities for repeated patterns.
 
-Scope is **frontend-only** — no Convex, Clerk, or schema changes. No theme toggle UI in this pass.
+Scope is **frontend-only** — no Convex, Clerk, or schema changes. Includes theme toggle UI with `localStorage` persistence (`ThemeToggle.astro`, `src/lib/theme.ts`) and logo theming via `currentColor` (`BrandLogo.astro`).
 
 ## Decisions
 
@@ -32,7 +32,7 @@ Scope is **frontend-only** — no Convex, Clerk, or schema changes. No theme tog
 | `--color-text` | `#1E1B4B` | Headings, body |
 | `--color-text-muted` | `#5B5878` | Meta, placeholders |
 
-### Dark mode (tokens only — not enabled by default)
+### Dark mode (`.dark` class)
 
 | Token | Value |
 |-------|-------|
@@ -64,6 +64,5 @@ Scope is **frontend-only** — no Convex, Clerk, or schema changes. No theme tog
 
 ## Out of scope
 
-- Theme toggle UI, localStorage, `prefers-color-scheme` wiring
+- `prefers-color-scheme` auto-detection (toggle is manual; stored preference only)
 - Clerk `<UserButton />` theming
-- Logo `currentColor` dark-mode adaptation

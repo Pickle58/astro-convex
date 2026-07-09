@@ -7,7 +7,7 @@ export const secondaryButtonClass =
   "rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-surface-muted focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export const ghostButtonClass =
-  "rounded-md px-4 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text focus:outline-none";
+  "rounded-md px-4 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
 export const inputClass =
   "w-full rounded-md border border-border bg-surface px-3 py-2 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary focus:outline-none";
@@ -19,7 +19,7 @@ export const panelHighlightClass =
   "rounded-xl border border-primary-border bg-primary-muted/40 p-5";
 
 export const coverImageClass =
-  "mx-auto my-6 block w-full max-w-2xl max-h-56 rounded-xl border border-border object-cover object-center shadow-lg transition-shadow duration-300 hover:shadow-xl";
+  "mx-auto my-6 block h-auto w-full max-w-2xl rounded-xl border border-border object-contain shadow-lg transition-shadow duration-300 hover:shadow-xl";
 
 export const coverImageCardClass = "h-48 w-full object-cover";
 
