@@ -58,8 +58,11 @@ export const hasThreadAccess = query({
         threadId: args.threadId,
       });
       return threadUserId === userId;
-    } catch {
-      return false;
+    } catch (error) {
+      if (error instanceof Error && error.message === "Thread not found") {
+        return false;
+      }
+      throw error;
     }
   },
 });

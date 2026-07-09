@@ -340,6 +340,8 @@ function PostEditorForm({ postId }: { postId?: Id<"posts"> }) {
       />
 
       <textarea
+        id="post-excerpt"
+        aria-label="Short excerpt (optional, shown on the blog index)"
         placeholder="Short excerpt (optional, shown on the blog index)"
         value={excerpt}
         onChange={(e) => setExcerpt(e.target.value)}
